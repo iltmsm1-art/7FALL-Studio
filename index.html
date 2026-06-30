@@ -748,6 +748,12 @@
           <div class="rule"><h3><span class="num">2</span>Discard</h3>You may discard up to <b>3 total tiles</b>.<br>Discard one at a time or all at once.<br>Each discarded tile is immediately replaced.</div>
           <div class="rule"><h3><span class="num">3</span>Score</h3>Replacement tiles are locked and cannot be discarded again this turn.<br>Assign Wilds first, then apply Breaks.<br>Score your final Fate Row.</div>
         </div>
+
+        <div class="phase-indicator" id="phaseIndicator" aria-live="polite">
+          <span class="phase-step" data-phase="draw">1 Draw</span>
+          <span class="phase-step" data-phase="discard">2 Discard</span>
+          <span class="phase-step" data-phase="score">3 Score</span>
+        </div>
       </section>
 
       <section class="panel">
@@ -762,12 +768,7 @@
           <button class="danger" id="discardBtn" disabled>Discard Selected</button>
           <button id="scoreBtn" disabled>Score Row</button>
         </div>
-        <div class="phase-indicator" id="phaseIndicator" aria-live="polite">
-          <span class="phase-step" data-phase="draw">1 Draw</span>
-          <span class="phase-step" data-phase="discard">2 Discard</span>
-          <span class="phase-step" data-phase="score">3 Score</span>
-        </div>
-        <div class="version-badge">SevenFall Studio Edition · v1.4 Sound + Layout Fix</div>
+        <div class="version-badge">SevenFall Studio Edition · v1.4 How To Play Layout Fix</div>
 
         <div class="status">
           <div class="pill">Round <b id="round">1</b>/5</div>
