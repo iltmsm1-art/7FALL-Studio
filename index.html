@@ -758,6 +758,20 @@
 
       <section class="panel">
         <h2 class="section-title">Play</h2>
+
+        <h2 class="section-title">Fate Row</h2>
+        <p class="tiny" style="text-align:center;margin-top:-6px">Click multiple eligible tiles to select them. Click again to unselect.</p>
+        <div class="fate" id="fateRow"></div>
+        <div class="tile-help"><button type="button" onclick="showTileHelp('Wild')">What does Wild do?</button><button type="button" onclick="showTileHelp('Break')">What does Break do?</button></div>
+
+        <div class="status">
+          <div class="pill">Round <b id="round">1</b>/5</div>
+          <div class="pill">Player <b id="player">1</b></div>
+          <div class="pill">Discards <b id="discards">0</b>/3</div>
+          <div class="pill">Selected <b id="selectedCount">0</b></div>
+          <div class="pill">Tiles in Can <b id="canCount">40</b></div>
+        </div>
+
         <div class="controls">
           <label>Players:
             <select id="playerCount"><option selected>1</option><option>2</option><option>3</option><option>4</option></select>
@@ -768,20 +782,7 @@
           <button class="danger" id="discardBtn" disabled>Discard Selected</button>
           <button id="scoreBtn" disabled>Score Row</button>
         </div>
-        <div class="version-badge">SevenFall Studio Edition · v1.4 How To Play Layout Fix</div>
-
-        <div class="status">
-          <div class="pill">Round <b id="round">1</b>/5</div>
-          <div class="pill">Player <b id="player">1</b></div>
-          <div class="pill">Discards <b id="discards">0</b>/3</div>
-          <div class="pill">Selected <b id="selectedCount">0</b></div>
-          <div class="pill">Tiles in Can <b id="canCount">40</b></div>
-        </div>
-
-        <h2 class="section-title">Fate Row</h2>
-        <p class="tiny" style="text-align:center;margin-top:-6px">Click multiple eligible tiles to select them. Click again to unselect.</p>
-        <div class="fate" id="fateRow"></div>
-        <div class="tile-help"><button type="button" onclick="showTileHelp('Wild')">What does Wild do?</button><button type="button" onclick="showTileHelp('Break')">What does Break do?</button></div>
+        <div class="version-badge">SevenFall Studio Edition · v1.5 GitHub Pages Layout Fix</div>
       </section>
 
       <section class="panel">
