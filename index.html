@@ -732,6 +732,48 @@
     .tile .name { font-size:9px; bottom:-17px; }
   }
 
+
+
+  /* Extra S24 / small-phone compact polish: shrinks the top product/component area so How To Play appears sooner in normal Chrome. */
+  @media (max-width:600px) {
+    html, body { max-width:100%; overflow-x:hidden; }
+    .wrap { padding:4px; }
+    .sheet { padding:6px; border-width:1px; }
+    header { gap:6px; padding-bottom:6px; }
+    .brand-area { gap:6px; }
+    .brand-can img { max-width:120px; max-height:155px; }
+    .brand-copy h1, h1 { font-size:28px !important; letter-spacing:1px; }
+    .subtitle { font-size:13px; margin-top:1px; }
+    .tag { font-size:12px; margin-top:1px; }
+    .statsline { gap:4px; margin-top:3px; font-size:11px; }
+    .statsline span { padding-left:6px; border-left-width:1px; }
+
+    .components { padding-top:6px; }
+    .components h2 { font-size:15px; margin-bottom:3px; }
+    .components-summary { font-size:15px; padding:4px 6px; margin:4px 0 5px; }
+    .component-card { margin-top:5px; border-radius:8px; }
+    .component-card-title { font-size:14px; padding:4px 6px; }
+    .component-card-body { padding:5px; }
+    .component-card-note { font-size:10px; margin-bottom:4px; }
+    .symbol-preview-grid { grid-template-columns:repeat(4,1fr); gap:4px; }
+    .symbol-preview { font-size:7px; line-height:1.05; }
+    .symbol-preview img { width:28px; height:28px; margin-bottom:2px; }
+    .special-components-list { gap:5px; }
+    .special-component { grid-template-columns:34px 1fr; gap:6px; }
+    .special-component + .special-component { padding-top:5px; }
+    .special-component img { width:34px; height:34px; }
+    .special-component b { font-size:14px; }
+    .special-component .tiny, .tiny { font-size:10px; }
+    .components-equation { font-size:10px; padding:4px 5px; margin-top:5px; }
+
+    .main { margin-top:6px; gap:6px; }
+    .panel { padding-top:8px; margin-bottom:10px; }
+    .section-title { font-size:20px; margin-bottom:8px; }
+    .rules { gap:5px; }
+    .rule { padding:7px 3px 3px; }
+    .rule h3 { font-size:17px; margin-bottom:5px; }
+    .num { width:26px; height:26px; margin-right:5px; }
+  }
 </style>
 </head>
 <body>
