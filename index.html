@@ -4,13 +4,13 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>SevenFall Studio Edition v1.3 Sprint 1.1</title>
-<!-- SevenFall Analytics: replace G-XXXXXXXXXX with your Google Analytics 4 Measurement ID before publishing. -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<!-- SevenFall Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-71VGQ7H6G4"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){ dataLayer.push(arguments); }
   gtag('js', new Date());
-  gtag('config', 'G-XXXXXXXXXX', { send_page_view: true });
+  gtag('config', 'G-71VGQ7H6G4', { send_page_view: true });
 </script>
 
 <style>
@@ -776,6 +776,7 @@
   }
 </style>
 
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -957,7 +958,7 @@ const TILE_IMAGES = {"Sun": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAF4AA
    - game_complete with final scores
 
    Before publishing:
-   1) Replace G-XXXXXXXXXX above with your real GA4 Measurement ID.
+   1) Replace G-71VGQ7H6G4 above with your real GA4 Measurement ID.
    2) In GA4, mark final_score, winner_score, player_count, round_score_points, and discards_used as custom dimensions/metrics if you want them visible in reports.
    3) This also keeps a local backup in localStorage under sevenfallAnalyticsEvents for testing.
 */
@@ -1008,7 +1009,7 @@ function trackSevenFall(eventName, params={}){
 
   saveLocalAnalyticsEvent(eventName, payload);
 
-  if(typeof gtag === 'function' && !String('G-XXXXXXXXXX').includes('XXXXXXXXXX')){
+  if(typeof gtag === 'function' && !String('G-71VGQ7H6G4').includes('XXXXXXXXXX')){
     gtag('event', eventName, payload);
   }
 
