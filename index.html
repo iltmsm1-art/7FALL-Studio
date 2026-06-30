@@ -757,6 +757,7 @@
             <select id="playerCount"><option selected>1</option><option>2</option><option>3</option><option>4</option></select>
           </label>
           <button class="secondary" id="newGame" disabled>New Game</button>
+          <button class="secondary" id="soundBtn" type="button">Sound On</button>
           <button id="drawBtn">Shake Can &amp; Draw 7</button>
           <button class="danger" id="discardBtn" disabled>Discard Selected</button>
           <button id="scoreBtn" disabled>Score Row</button>
@@ -796,16 +797,6 @@
         <div class="log" id="log"></div>
       </section>
 
-        <div class="session-stats" id="sessionStatsBox">
-          <h3>Session Stats</h3>
-          <p class="session-copy">Every completed 5-round New Game updates these stats.</p>
-          <div class="session-grid">
-            <div class="session-stat"><span>Games Played</span><b id="gamesPlayedStat">0</b></div>
-            <div class="session-stat"><span>Best Game</span><b id="bestGameStat">0</b></div>
-            <div class="session-stat"><span>Best Round</span><b id="bestRoundStat">0</b></div>
-            <div class="session-stat"><span>Average</span><b id="averageGameStat">0.0</b></div>
-          </div>
-        </div>
     </div>
 
     <div>
@@ -831,6 +822,18 @@
       </section>
     </div>
   </div>
+
+
+  <div class="session-stats" id="sessionStatsBox">
+          <h3>Session Stats</h3>
+          <p class="session-copy">Every completed 5-round New Game updates these stats.</p>
+          <div class="session-grid">
+            <div class="session-stat"><span>Games Played</span><b id="gamesPlayedStat">0</b></div>
+            <div class="session-stat"><span>Best Game</span><b id="bestGameStat">0</b></div>
+            <div class="session-stat"><span>Best Round</span><b id="bestRoundStat">0</b></div>
+            <div class="session-stat"><span>Average</span><b id="averageGameStat">0.0</b></div>
+          </div>
+        </div>
 
   <div class="footer">
     <div><h3>Game Feel</h3>Tactile • Luck • Push-Your-Luck • Replayable</div>
@@ -1062,6 +1065,17 @@ function updateDailyPanel(){
 // SevenFall Studio sound system - lightweight Web Audio tones.
 // Sounds are triggered only after a user action, which keeps mobile browsers happy.
 let sevenFallAudioContext = null;
+let sevenFallSoundOn = localStorage.getItem('sevenfallSoundOn') !== 'false';
+function updateSoundButton(){
+  const btn = document.getElementById('soundBtn');
+  if(btn) btn.textContent = sevenFallSoundOn ? 'Sound On' : 'Sound Off';
+}
+function toggleSevenFallSound(){
+  sevenFallSoundOn = !sevenFallSoundOn;
+  localStorage.setItem('sevenfallSoundOn', sevenFallSoundOn ? 'true' : 'false');
+  updateSoundButton();
+  if(sevenFallSoundOn) playSfx('select');
+}
 function getSevenFallAudio(){
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
   if(!AudioCtx) return null;
@@ -1085,6 +1099,7 @@ function tone(freq, start, duration, type='sine', gainValue=0.045){
   osc.stop(ctx.currentTime + start + duration + 0.025);
 }
 function playSfx(name){
+  if(!sevenFallSoundOn) return;
   try{
     if(name === 'draw'){
       tone(140,.00,.08,'square',.028); tone(190,.07,.08,'square',.025); tone(250,.14,.10,'triangle',.03);
@@ -1481,6 +1496,7 @@ function confirmResetGame(targetName){
 }
 
 document.getElementById('newGame').onclick=()=>{ if(confirmResetGame('a new game')) init(false); };
+const soundBtn=document.getElementById('soundBtn'); if(soundBtn){ soundBtn.onclick=toggleSevenFallSound; updateSoundButton(); }
 const playBtn=document.getElementById('playGameBtn'); if(playBtn){ playBtn.onclick=()=>{ if(confirmResetGame('Play Game')) init(false); }; }
 const dailyBtn=document.getElementById('dailyBtn'); if(dailyBtn){ dailyBtn.onclick=()=>{ if(confirmResetGame('')) init(true); }; }
 
