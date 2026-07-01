@@ -1218,7 +1218,7 @@ function init(dailyMode=false){
   sevenFallGameStartedAt = Date.now();
   sevenFallDrawCount = 0;
   sevenFallDiscardCount = 0;
-  trackSevenFall('game_start', {player_count:pc, daily_mode:!!dailyMode});
+  trackSevenFall('game_started', {player_count:pc, daily_mode:!!dailyMode});
   state={players:Array.from({length:pc},()=>({score:0,rounds:[],discards:0})),round:1,player:0,bag:makeBag(),row:[],discard:[],used:0,selected:new Set(),drawn:false,phase:'draw',gameOver:false,animating:false,recentSpecials:new Set(),dailyMode:!!dailyMode, dailySeed:seed, statsRecorded:false};
   // scoring table is static text-only now; automatic explanation appears after scoring
   document.getElementById('log').textContent = '';
