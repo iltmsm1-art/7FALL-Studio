@@ -1023,6 +1023,12 @@ trackSevenFall('player_visit', {
   is_return_visit: sevenFallVisitCount > 1
 });
 
+window.addEventListener('appinstalled', () => {
+  trackSevenFall('install_pwa', {
+    install_source: 'browser_appinstalled_event'
+  });
+});
+
 const SYMBOLS = ['Sun','Moon','Flame','Wave','Leaf','Storm','Crystal','Valley','Eye','Star','Mountain','Void'];
 let state;
 
@@ -1218,7 +1224,7 @@ function init(dailyMode=false){
   sevenFallGameStartedAt = Date.now();
   sevenFallDrawCount = 0;
   sevenFallDiscardCount = 0;
-  trackSevenFall('game_started', {player_count:pc, daily_mode:!!dailyMode});
+  trackSevenFall('game_start', {player_count:pc, daily_mode:!!dailyMode});
   state={players:Array.from({length:pc},()=>({score:0,rounds:[],discards:0})),round:1,player:0,bag:makeBag(),row:[],discard:[],used:0,selected:new Set(),drawn:false,phase:'draw',gameOver:false,animating:false,recentSpecials:new Set(),dailyMode:!!dailyMode, dailySeed:seed, statsRecorded:false};
   // scoring table is static text-only now; automatic explanation appears after scoring
   document.getElementById('log').textContent = '';
@@ -1538,6 +1544,8 @@ function updateSessionStatsDisplay(){
 }
 function recordCompletedGame(){
   const s = getSessionStats();
+  const previousBestGame = s.bestGame;
+  const previousBestRound = s.bestRound;
   const gameScores = state.players.map(p=>p.score);
   const bestThisGame = Math.max(...gameScores);
   const bestRoundThisGame = Math.max(0, ...state.players.flatMap(p=>p.rounds || []));
@@ -1547,6 +1555,24 @@ function recordCompletedGame(){
   s.bestRound = Math.max(s.bestRound, bestRoundThisGame);
   saveSessionStats(s);
   updateSessionStatsDisplay();
+
+  if(bestThisGame > previousBestGame){
+    trackSevenFall('new_high_score', {
+      score_type: 'game',
+      score: bestThisGame,
+      previous_best: previousBestGame,
+      games_played: s.gamesPlayed
+    });
+  }
+
+  if(bestRoundThisGame > previousBestRound){
+    trackSevenFall('new_high_score', {
+      score_type: 'round',
+      score: bestRoundThisGame,
+      previous_best: previousBestRound,
+      games_played: s.gamesPlayed
+    });
+  }
 }
 
 function finish(){
@@ -1561,6 +1587,20 @@ function finish(){
   const totalScore = scores.reduce((a,b)=>a+b,0);
   const averageScore = scores.length ? +(totalScore / scores.length).toFixed(2) : 0;
   trackSevenFall('game_complete', {
+    player_count: state.players.length,
+    daily_mode: !!state.dailyMode,
+    winner_players: winners.join('|'),
+    winner_score: max,
+    final_score: max,
+    total_score: totalScore,
+    average_score: averageScore,
+    duration_seconds: durationSeconds,
+    draw_count: sevenFallDrawCount,
+    discard_count: sevenFallDiscardCount,
+    player_scores: scores.join('|')
+  });
+
+  trackSevenFall('game_finished', {
     player_count: state.players.length,
     daily_mode: !!state.dailyMode,
     winner_players: winners.join('|'),
@@ -1589,10 +1629,10 @@ function confirmResetGame(targetName){
   return confirm(`You have a game in progress. Starting ${targetName} will reset this 5-round game back to Round 1. Continue?`);
 }
 
-document.getElementById('newGame').onclick=()=>{ if(confirmResetGame('a new game')) init(false); };
+document.getElementById('newGame').onclick=()=>{ if(confirmResetGame('a new game')) { trackSevenFall('new_game', {source:'new_game_button', daily_mode:false}); init(false); } };
 const soundBtn=document.getElementById('soundBtn'); if(soundBtn){ soundBtn.onclick=toggleSevenFallSound; updateSoundButton(); }
-const playBtn=document.getElementById('playGameBtn'); if(playBtn){ playBtn.onclick=()=>{ if(confirmResetGame('Play Game')) init(false); }; }
-const dailyBtn=document.getElementById('dailyBtn'); if(dailyBtn){ dailyBtn.onclick=()=>{ if(confirmResetGame('')) init(true); }; }
+const playBtn=document.getElementById('playGameBtn'); if(playBtn){ playBtn.onclick=()=>{ if(confirmResetGame('Play Game')) { trackSevenFall('new_game', {source:'play_game_button', daily_mode:false}); init(false); } }; }
+const dailyBtn=document.getElementById('dailyBtn'); if(dailyBtn){ dailyBtn.onclick=()=>{ if(confirmResetGame('')) { trackSevenFall('new_game', {source:'daily_button', daily_mode:true}); init(true); } }; }
 
 document.getElementById('drawBtn').onclick=draw7;
 document.getElementById('discardBtn').onclick=discardSelected;
