@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SevenFall Studio Edition v1.3 Sprint 1.1</title>
+<title>SevenFall Studio Edition v1.6 Layout Polish</title>
 <!-- SevenFall Analytics: replace G-71VGQ7H6G4 with your Google Analytics 4 Measurement ID before publishing. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-71VGQ7H6G4"></script>
 <script>
@@ -774,6 +774,32 @@
     .rule h3 { font-size:17px; margin-bottom:5px; }
     .num { width:26px; height:26px; margin-right:5px; }
   }
+
+  /* v1.6 layout polish: hide the verbose per-round log and make last score compact. */
+  .round-log-hidden {
+    display:none !important;
+  }
+  .last-score-panel {
+    padding-top:10px;
+    margin-bottom:10px;
+  }
+  .last-score-panel .section-title {
+    font-size:22px;
+    margin-bottom:8px;
+  }
+  .last-score-panel .log {
+    min-height:0;
+    padding:10px 12px;
+    border-radius:999px;
+    text-align:center;
+    font-size:14px;
+    white-space:normal;
+  }
+  @media (max-width:600px) {
+    .session-stats { margin-top:10px; margin-bottom:10px; }
+    .last-score-panel .log { border-radius:14px; font-size:13px; }
+  }
+
 </style>
 
 <link rel="manifest" href="manifest.webmanifest">
@@ -874,12 +900,12 @@
           <button class="danger" id="discardBtn" disabled>Discard Selected</button>
           <button id="scoreBtn" disabled>Score Row</button>
         </div>
-        <div class="version-badge">SevenFall Studio Edition · v1.5 GitHub Pages Layout Fix</div>
+        <div class="version-badge">SevenFall Studio Edition · v1.6 Layout Polish</div>
       </section>
 
-      <section class="panel">
+      <section class="panel last-score-panel">
         <h2 class="section-title">Last Score</h2>
-        <div class="log" id="scoreExplanation">Score your Fate Row to see the result explained here.</div>
+        <div class="log" id="scoreExplanation">Last score will appear here after you score a round.</div>
       </section>
 
 
@@ -888,7 +914,17 @@
         <h2 class="section-title">Players</h2>
         <div class="players" id="players"></div>
         <div class="status" id="sessionStats" style="margin-top:12px"></div>
-        <div class="log" id="log"></div>
+        <div class="session-stats" id="sessionStatsBox">
+                  <h3>Session Stats</h3>
+                  <p class="session-copy">Every completed 5-round New Game updates these stats.</p>
+                  <div class="session-grid">
+                    <div class="session-stat"><span>Games Played</span><b id="gamesPlayedStat">0</b></div>
+                    <div class="session-stat"><span>Best Game</span><b id="bestGameStat">0</b></div>
+                    <div class="session-stat"><span>Best Round</span><b id="bestRoundStat">0</b></div>
+                    <div class="session-stat"><span>Average</span><b id="averageGameStat">0.0</b></div>
+                  </div>
+                </div>
+        <div class="log round-log-hidden" id="log" aria-hidden="true"></div>
       </section>
 
     </div>
@@ -918,16 +954,7 @@
   </div>
 
 
-  <div class="session-stats" id="sessionStatsBox">
-          <h3>Session Stats</h3>
-          <p class="session-copy">Every completed 5-round New Game updates these stats.</p>
-          <div class="session-grid">
-            <div class="session-stat"><span>Games Played</span><b id="gamesPlayedStat">0</b></div>
-            <div class="session-stat"><span>Best Game</span><b id="bestGameStat">0</b></div>
-            <div class="session-stat"><span>Best Round</span><b id="bestRoundStat">0</b></div>
-            <div class="session-stat"><span>Average</span><b id="averageGameStat">0.0</b></div>
-          </div>
-        </div>
+  
 
   <div class="footer">
     <div><h3>Game Feel</h3>Tactile • Luck • Push-Your-Luck • Replayable</div>
