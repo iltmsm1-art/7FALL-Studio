@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>7FALL™ v2.1 — Share My Fate</title>
+<title>7FALL™ v2.2 — Score Challenge</title>
 <!-- 7FALL Analytics: replace G-71VGQ7H6G4 with your Google Analytics 4 Measurement ID before publishing. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-71VGQ7H6G4"></script>
 <script>
@@ -982,7 +982,7 @@
           <button class="danger" id="discardBtn" disabled>Discard Selected</button>
           <button id="scoreBtn" disabled>Score Row</button>
         </div>
-        <div class="version-badge">7FALL™ · v2.1 Share My Fate</div>
+        <div class="version-badge">7FALL™ · v2.2 Score Challenge</div>
       </section>
 
       <section class="panel">
@@ -1753,7 +1753,7 @@ function closeFateResult(){
 
 function playAgainFromFate(){
   closeFateResult();
-  trackSevenFall('new_game', {source:'fate_result_play_again', daily_mode:false});
+  trackSevenFall('new_game', {button_name:'fate_result_play_again', daily_mode:false});
   init(false);
 }
 
@@ -1872,10 +1872,10 @@ function confirmResetGame(targetName){
   return confirm(`You have a game in progress. Starting ${targetName} will reset this 5-round game back to Round 1. Continue?`);
 }
 
-document.getElementById('newGame').onclick=()=>{ if(confirmResetGame('a new game')) { trackSevenFall('new_game', {source:'new_game_button', daily_mode:false}); init(false); } };
+document.getElementById('newGame').onclick=()=>{ if(confirmResetGame('a new game')) { trackSevenFall('new_game', {button_name:'new_game_button', daily_mode:false}); init(false); } };
 const soundBtn=document.getElementById('soundBtn'); if(soundBtn){ soundBtn.onclick=toggleSevenFallSound; updateSoundButton(); }
-const playBtn=document.getElementById('playGameBtn'); if(playBtn){ playBtn.onclick=()=>{ if(confirmResetGame('Play Game')) { trackSevenFall('new_game', {source:'play_game_button', daily_mode:false}); init(false); } }; }
-const dailyBtn=document.getElementById('dailyBtn'); if(dailyBtn){ dailyBtn.onclick=()=>{ if(confirmResetGame('')) { trackSevenFall('new_game', {source:'daily_button', daily_mode:true}); init(true); } }; }
+const playBtn=document.getElementById('playGameBtn'); if(playBtn){ playBtn.onclick=()=>{ if(confirmResetGame('Play Game')) { trackSevenFall('new_game', {button_name:'play_game_button', daily_mode:false}); init(false); } }; }
+const dailyBtn=document.getElementById('dailyBtn'); if(dailyBtn){ dailyBtn.onclick=()=>{ if(confirmResetGame('')) { trackSevenFall('new_game', {button_name:'daily_button', daily_mode:true}); init(true); } }; }
 
 document.getElementById('drawBtn').onclick=draw7;
 document.getElementById('discardBtn').onclick=discardSelected;
