@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>7FALL™ v2.1 — Share My Fate</title>
+<title>7FALL™ v2.3 — Personal Best</title>
 <!-- 7FALL Analytics: replace G-71VGQ7H6G4 with your Google Analytics 4 Measurement ID before publishing. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-71VGQ7H6G4"></script>
 <script>
@@ -965,6 +965,46 @@
     }
   }
 
+
+  /* v2.3 Personal Best celebration */
+  .personal-best {
+    display:none;
+    margin:16px auto 4px;
+    max-width:430px;
+    padding:14px 16px;
+    border:2px solid #f4ca68;
+    border-radius:16px;
+    background:linear-gradient(135deg,rgba(244,202,104,.16),rgba(201,149,47,.05));
+    box-shadow:0 0 26px rgba(244,202,104,.28);
+    animation:personalBestReveal .8s ease-out both, personalBestGlow 1.8s ease-in-out .8s 2;
+  }
+  .personal-best.show { display:block; }
+  .personal-best-kicker {
+    color:#f4ca68;
+    font:900 13px Arial,sans-serif;
+    letter-spacing:2px;
+    text-transform:uppercase;
+  }
+  .personal-best-message {
+    margin-top:6px;
+    color:#fff7e5;
+    font:700 16px Georgia,serif;
+    line-height:1.35;
+  }
+  .personal-best-compare {
+    margin-top:7px;
+    color:#e6c98c;
+    font:700 12px Arial,sans-serif;
+  }
+  @keyframes personalBestReveal {
+    from { opacity:0; transform:translateY(10px) scale(.95); }
+    to { opacity:1; transform:translateY(0) scale(1); }
+  }
+  @keyframes personalBestGlow {
+    0%,100% { box-shadow:0 0 22px rgba(244,202,104,.22); }
+    50% { box-shadow:0 0 38px rgba(244,202,104,.62); }
+  }
+
 </style>
 
 <link rel="manifest" href="manifest.webmanifest?v=2.1">
@@ -1073,7 +1113,7 @@
             <button class="secondary" id="soundBtn" type="button">Sound: On</button>
           </div>
         </div>
-        <div class="version-badge">7FALL™ · v2.2 Control Layout</div>
+        <div class="version-badge">7FALL™ · v2.3 Personal Best</div>
       </section>
 
       <section class="panel">
@@ -1150,6 +1190,11 @@
     <div class="fate-score-label">Final Score</div>
     <div class="fate-title" id="fateResultTitle"></div>
     <p class="fate-flavor" id="fateResultFlavor"></p>
+    <div class="personal-best" id="personalBestNotice" aria-live="polite">
+      <div class="personal-best-kicker">New High Score</div>
+      <div class="personal-best-message">The Fates have rewritten your destiny.</div>
+      <div class="personal-best-compare" id="personalBestCompare"></div>
+    </div>
     <p class="fate-result-copy" id="fateResultCopy"></p>
     <div class="fate-actions">
       <button class="share-fate-btn" id="shareFateBtn" type="button" onclick="shareMyFate()">Share My Fate</button>
@@ -1778,6 +1823,9 @@ function recordCompletedGame(){
   const gameScores = state.players.map(p=>p.score);
   const bestThisGame = Math.max(...gameScores);
   const bestRoundThisGame = Math.max(0, ...state.players.flatMap(p=>p.rounds || []));
+  const isFirstCompletedGame = s.gamesPlayed === 0;
+  const isNewBestGame = bestThisGame > previousBestGame;
+
   s.gamesPlayed += 1;
   s.totalGameScore += bestThisGame;
   s.bestGame = Math.max(s.bestGame, bestThisGame);
@@ -1785,7 +1833,7 @@ function recordCompletedGame(){
   saveSessionStats(s);
   updateSessionStatsDisplay();
 
-  if(bestThisGame > previousBestGame){
+  if(isNewBestGame){
     trackSevenFall('new_high_score', {
       score_type: 'game',
       score: bestThisGame,
@@ -1802,6 +1850,13 @@ function recordCompletedGame(){
       games_played: s.gamesPlayed
     });
   }
+
+  return {
+    isFirstCompletedGame,
+    isNewBestGame,
+    previousBestGame,
+    newBestGame: bestThisGame
+  };
 }
 
 const SEVENFALL_SHARE_URL = 'https://iltmsm1-art.github.io/SevenFall-Studio/';
@@ -1891,7 +1946,11 @@ async function shareMyFate(){
 function finish(){
   playSfx('gameover');
   state.gameOver = true;
-  if(!state.statsRecorded){ recordCompletedGame(); state.statsRecorded = true; }
+  let personalBestResult = null;
+  if(!state.statsRecorded){
+    personalBestResult = recordCompletedGame();
+    state.statsRecorded = true;
+  }
   const scores = state.players.map(p=>p.score);
   let max=Math.max(...scores);
   let winners=state.players.map((p,i)=>p.score===max?i+1:null).filter(Boolean);
@@ -1946,6 +2005,21 @@ Think your Fate will be better?`
   document.getElementById('fateResultTitle').textContent=fate.title;
   document.getElementById('fateResultFlavor').textContent=`“${fate.flavor}”`;
   document.getElementById('fateResultCopy').textContent=resultCopy;
+
+  const personalBestNotice = document.getElementById('personalBestNotice');
+  const personalBestCompare = document.getElementById('personalBestCompare');
+  if(personalBestNotice && personalBestCompare){
+    personalBestNotice.classList.remove('show');
+    personalBestCompare.textContent = '';
+
+    if(personalBestResult && personalBestResult.isNewBestGame){
+      personalBestNotice.classList.add('show');
+      personalBestCompare.textContent = personalBestResult.isFirstCompletedGame
+        ? `Your first completed game set the record at ${personalBestResult.newBestGame} points.`
+        : `Previous best: ${personalBestResult.previousBestGame} • New best: ${personalBestResult.newBestGame}`;
+    }
+  }
+
   document.getElementById('shareFateStatus').textContent='';
   document.getElementById('fateResultModal').classList.add('show');
   animateFateScore(max);
