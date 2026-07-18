@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>7FALL™ v2.3 — Personal Best</title>
+<title>7FALL™ v2.4 — Publisher Analytics</title>
 <!-- 7FALL Analytics: replace G-71VGQ7H6G4 with your Google Analytics 4 Measurement ID before publishing. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-71VGQ7H6G4"></script>
 <script>
@@ -966,7 +966,7 @@
   }
 
 
-  /* v2.3 Personal Best celebration */
+  /* v2.4 Publisher Analytics celebration */
   .personal-best {
     display:none;
     margin:16px auto 4px;
@@ -1113,7 +1113,7 @@
             <button class="secondary" id="soundBtn" type="button">Sound: On</button>
           </div>
         </div>
-        <div class="version-badge">7FALL™ · v2.3 Personal Best</div>
+        <div class="version-badge">7FALL™ · v2.4 Publisher Analytics</div>
       </section>
 
       <section class="panel">
@@ -1247,6 +1247,9 @@ let sevenFallGameId = null;
 let sevenFallGameStartedAt = null;
 let sevenFallDrawCount = 0;
 let sevenFallDiscardCount = 0;
+let sevenFallGamesStartedThisVisit = 0;
+let sevenFallCompletedAt = null;
+let sevenFallLastFinalScore = null;
 
 function saveLocalAnalyticsEvent(eventName, params={}){
   try{
@@ -1491,14 +1494,21 @@ function playSfx(name){
   }catch(e){}
 }
 
-function init(dailyMode=false){
+function init(dailyMode=false, startSource='automatic'){
   let pc=+document.getElementById('playerCount').value;
   const seed=getDailySeed();
   sevenFallGameId = 'game_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
   sevenFallGameStartedAt = Date.now();
   sevenFallDrawCount = 0;
   sevenFallDiscardCount = 0;
-  trackSevenFall('game_start', {player_count:pc, daily_mode:!!dailyMode});
+  sevenFallGamesStartedThisVisit += 1;
+  trackSevenFall('game_start', {
+    player_count:pc,
+    daily_mode:!!dailyMode,
+    start_source:startSource,
+    game_sequence:sevenFallGamesStartedThisVisit,
+    is_replay:sevenFallGamesStartedThisVisit > 1
+  });
   state={players:Array.from({length:pc},()=>({score:0,rounds:[],discards:0})),round:1,player:0,bag:makeBag(),row:[],discard:[],used:0,selected:new Set(),drawn:false,phase:'draw',gameOver:false,animating:false,recentSpecials:new Set(),dailyMode:!!dailyMode, dailySeed:seed, statsRecorded:false};
   // scoring table is static text-only now; automatic explanation appears after scoring
   document.getElementById('log').textContent = '';
@@ -1656,6 +1666,18 @@ function scoreHand(){
     player_total_score: p.score,
     discards_used: state.used,
     final_row: state.row.map(t=>t.name).join('|')
+  });
+
+  // Publisher-facing funnel event: shows exactly how far players progress.
+  trackSevenFall('round_complete', {
+    player_number: playerNumber,
+    round_number: roundNumber,
+    rounds_remaining: Math.max(0, 5 - roundNumber),
+    is_final_round: roundNumber === 5,
+    round_score_points: res.points,
+    score_label: res.label,
+    player_total_score: p.score,
+    discards_used: state.used
   });
 
   log(explanation);
@@ -1897,10 +1919,33 @@ function closeFateResult(){
   if(modal) modal.classList.remove('show');
 }
 
+function startSevenFallGame(source, dailyMode=false){
+  const wasCompleted = !!(state && state.gameOver && sevenFallCompletedAt);
+  const replayDelaySeconds = wasCompleted
+    ? Math.max(0, Math.round((Date.now() - sevenFallCompletedAt) / 1000))
+    : null;
+
+  trackSevenFall('new_game', {
+    source:source,
+    daily_mode:!!dailyMode,
+    after_completed_game:wasCompleted
+  });
+
+  if(wasCompleted){
+    trackSevenFall('play_again', {
+      source:source,
+      daily_mode:!!dailyMode,
+      seconds_after_finish:replayDelaySeconds,
+      previous_final_score:sevenFallLastFinalScore
+    });
+  }
+
+  init(dailyMode, source);
+}
+
 function playAgainFromFate(){
   closeFateResult();
-  trackSevenFall('new_game', {source:'fate_result_play_again', daily_mode:false});
-  init(false);
+  startSevenFallGame('fate_result_play_again', false);
 }
 
 async function shareMyFate(){
@@ -1985,6 +2030,8 @@ function finish(){
     discard_count: sevenFallDiscardCount,
     player_scores: scores.join('|')
   });
+  sevenFallCompletedAt = Date.now();
+  sevenFallLastFinalScore = max;
   const fate = getFateTitle(max);
   const winnerLabel = winners.length === 1 ? `Player ${winners[0]}` : `Players ${winners.join(' & ')}`;
   const resultCopy = state.players.length === 1
@@ -2038,10 +2085,10 @@ function confirmResetGame(targetName){
   return confirm(`You have a game in progress. Starting ${targetName} will reset this 5-round game back to Round 1. Continue?`);
 }
 
-document.getElementById('newGame').onclick=()=>{ if(confirmResetGame('a new game')) { trackSevenFall('new_game', {source:'new_game_button', daily_mode:false}); init(false); } };
+document.getElementById('newGame').onclick=()=>{ if(confirmResetGame('a new game')) startSevenFallGame('new_game_button', false); };
 const soundBtn=document.getElementById('soundBtn'); if(soundBtn){ soundBtn.onclick=toggleSevenFallSound; updateSoundButton(); }
-const playBtn=document.getElementById('playGameBtn'); if(playBtn){ playBtn.onclick=()=>{ if(confirmResetGame('Play Game')) { trackSevenFall('new_game', {source:'play_game_button', daily_mode:false}); init(false); } }; }
-const dailyBtn=document.getElementById('dailyBtn'); if(dailyBtn){ dailyBtn.onclick=()=>{ if(confirmResetGame('')) { trackSevenFall('new_game', {source:'daily_button', daily_mode:true}); init(true); } }; }
+const playBtn=document.getElementById('playGameBtn'); if(playBtn){ playBtn.onclick=()=>{ if(confirmResetGame('Play Game')) startSevenFallGame('play_game_button', false); }; }
+const dailyBtn=document.getElementById('dailyBtn'); if(dailyBtn){ dailyBtn.onclick=()=>{ if(confirmResetGame('')) startSevenFallGame('daily_button', true); }; }
 
 document.getElementById('drawBtn').onclick=draw7;
 document.getElementById('discardBtn').onclick=discardSelected;
@@ -2062,7 +2109,7 @@ if(savedPlayers && ['1','2','3','4'].includes(savedPlayers)){
 } else {
   document.getElementById('playerCount').value = '1';
 }
-init(false);
+init(false, 'page_load');
 </script>
 
 
@@ -2172,6 +2219,12 @@ function showRulesTab(which){
   }
 }
 function showTileHelp(tile){
+  trackSevenFall('help_opened', {
+    topic: String(tile || '').toLowerCase(),
+    player_number: state ? state.player + 1 : null,
+    round_number: state ? state.round : null,
+    game_in_progress: !!(state && !state.gameOver && hasGameProgress())
+  });
   const modal = document.getElementById('modal');
   const title = document.getElementById('modalTitle');
   const text = document.getElementById('modalText');
