@@ -12,10 +12,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <title>7FALL™ — Play Free Online</title>
 <link rel="manifest" href="manifest.webmanifest">
-
 <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
-
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-71VGQ7H6G4"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-71VGQ7H6G4',{send_page_view:true});</script>
@@ -37,6 +35,78 @@ section{padding:78px 0}.head{max-width:790px;margin:0 auto 42px;text-align:cente
 @media(max-width:650px){.links a:not(.btn){display:none}.hero-promise{grid-template-columns:1fr}.shell{width:min(100% - 22px,1180px)}.hero{padding:42px 0 32px}.hero-grid{gap:35px}.brand{font-size:74px}.hero h1{font-size:34px}.lead{font-size:18px}.btn{width:100%}.tile-row{justify-content:center}.tile{width:39px;height:51px}.proof-grid{grid-template-columns:1fr}.proof-grid div+div{border-left:0;border-top:1px solid var(--line)}section{padding:58px 0}.gallery-side{grid-template-columns:1fr}.publisher-box{padding:29px 22px}.play-dot{width:46px;height:46px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.tile,.play-dot{animation:none}.reveal{opacity:1;transform:none}}
 .industry-link{color:var(--orange2);font-weight:700;text-decoration:none}.industry-link:hover{text-decoration:underline}
+
+/* Mobile layout fix */
+html, body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 720px) {
+  .header {
+    padding: 10px 16px;
+  }
+
+  .header-inner {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .nav a:not(.btn) {
+    display: none;
+  }
+
+  .nav .btn,
+  .btn {
+    white-space: nowrap;
+    padding: 12px 18px;
+  }
+
+  .hero {
+    padding: 42px 18px 54px;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .hero-copy,
+  .hero-art {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .hero h1 {
+    font-size: clamp(42px, 13vw, 64px);
+    line-height: 0.95;
+    overflow-wrap: normal;
+  }
+
+  .hero p {
+    font-size: 18px;
+    line-height: 1.5;
+  }
+
+  .hero-art {
+    order: 2;
+  }
+
+  .proof-grid,
+  .strategy-grid,
+  .gallery-grid,
+  .fit-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 </style>
 </head>
 <body>
