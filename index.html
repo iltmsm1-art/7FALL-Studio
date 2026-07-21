@@ -9,6 +9,7 @@
 <meta property="og:description" content="Every shake is a new beginning. Draw seven tiles, shape your row and decide when fate is worth scoring.">
 <meta property="og:image" content="assets/gameplay.png">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://iltmsm1-art.github.io/7FALL-Studio/">
 <meta name="twitter:card" content="summary_large_image">
 <title>7FALL™ — Play Free Online</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -36,75 +37,66 @@ section{padding:78px 0}.head{max-width:790px;margin:0 auto 42px;text-align:cente
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.tile,.play-dot{animation:none}.reveal{opacity:1;transform:none}}
 .industry-link{color:var(--orange2);font-weight:700;text-decoration:none}.industry-link:hover{text-decoration:underline}
 
-/* Mobile layout fix */
-html, body {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
+/* Mobile layout fix — matched to the current page structure */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+.hero-grid>*,.strategy-grid>*,.gallery>*,.gallery-side>*,.publisher-box>*{min-width:0}
+
+@media(max-width:720px){
+  .shell{width:calc(100% - 28px);max-width:none}
+
+  .nav{min-height:64px;gap:10px}
+  .logo{font-size:27px;letter-spacing:1.5px;flex:0 0 auto}
+  .links{gap:0;margin-left:auto;flex:0 0 auto}
+  .links>a:not(.btn){display:none}
+  .links .btn{width:auto;min-height:44px;padding:0 18px;white-space:nowrap;font-size:14px}
+
+  .hero{padding:38px 0 34px;overflow:hidden}
+  .hero-grid{grid-template-columns:minmax(0,1fr);gap:30px}
+  .kicker{font-size:11px;line-height:1.35;letter-spacing:1.35px;overflow-wrap:anywhere}
+  .brand{font-size:clamp(58px,20vw,74px);line-height:.84;letter-spacing:2px;max-width:100%}
+  .hero h1{margin-top:22px;font-size:clamp(36px,11.5vw,48px);line-height:1;overflow-wrap:break-word}
+  .lead{font-size:17px;line-height:1.5}
+  .actions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:24px}
+  .actions .btn{width:100%;min-width:0;padding:0 16px}
+  .tile-row{width:100%;gap:5px;justify-content:space-between}
+  .tile{flex:1 1 0;min-width:0;max-width:39px;width:auto;height:49px;font-size:18px}
+  .hero-promise{grid-template-columns:1fr;gap:8px;margin-top:22px}
+
+  .hero-art{width:100%;min-width:0}
+  .hero-art:before{inset:7% 0 -5% 5%;border-radius:24px}
+  .screen{width:100%;transform:none;border-radius:18px}
+  .screen-label{left:10px;right:10px;bottom:10px;text-align:center;font-size:10px;padding:8px 10px}
+  .badges{left:10px;top:10px;gap:5px}
+  .badge{font-size:10px;padding:6px 8px}
+  .play-dot{right:10px;top:10px;width:42px;height:42px;font-size:16px}
+
+  .proof{padding:10px 0 38px}
+  .proof-grid{grid-template-columns:1fr}
+  .proof-grid div,.proof-grid div:nth-child(3),.proof-grid div:nth-child(4){border-left:0;border-top:1px solid var(--line)}
+  .proof-grid div:first-child{border-top:0}
+
+  section{padding:56px 0}
+  .head{margin-bottom:30px}
+  .head h2,.strategy h2{font-size:clamp(34px,10vw,46px)}
+  .head p,.strategy p{font-size:17px}
+  .steps-grid,.strategy-grid,.gallery,.fit-grid,.publisher-box{grid-template-columns:minmax(0,1fr)}
+  .gallery-side{grid-template-columns:minmax(0,1fr)}
+  .gallery figure,.gallery-main img,.gallery-side figure{min-height:0}
+  .publisher-box{padding:29px 22px}
+  .cta-box{padding:42px 20px}
+  .cta-box h2{font-size:clamp(38px,11vw,54px)}
+  .cta-box .btn{width:100%;padding:0 14px}
+  .footer-row{display:grid;grid-template-columns:1fr;text-align:center}
 }
 
-img {
-  max-width: 100%;
-  height: auto;
-}
-
-@media (max-width: 720px) {
-  .header {
-    padding: 10px 16px;
-  }
-
-  .header-inner {
-    width: 100%;
-    gap: 12px;
-  }
-
-  .nav a:not(.btn) {
-    display: none;
-  }
-
-  .nav .btn,
-  .btn {
-    white-space: nowrap;
-    padding: 12px 18px;
-  }
-
-  .hero {
-    padding: 42px 18px 54px;
-  }
-
-  .hero-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 28px;
-  }
-
-  .hero-copy,
-  .hero-art {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .hero h1 {
-    font-size: clamp(42px, 13vw, 64px);
-    line-height: 0.95;
-    overflow-wrap: normal;
-  }
-
-  .hero p {
-    font-size: 18px;
-    line-height: 1.5;
-  }
-
-  .hero-art {
-    order: 2;
-  }
-
-  .proof-grid,
-  .strategy-grid,
-  .gallery-grid,
-  .fit-grid {
-    grid-template-columns: 1fr;
-  }
+@media(max-width:380px){
+  .shell{width:calc(100% - 22px)}
+  .logo{font-size:24px}
+  .links .btn{padding:0 14px;font-size:13px}
+  .brand{font-size:56px}
+  .hero h1{font-size:35px}
+  .tile-row{gap:4px}
+  .tile{height:46px;font-size:17px}
 }
 
 </style>
@@ -120,7 +112,7 @@ img {
 <section id="about"><div class="shell"><div class="head reveal"><p class="kicker">Who it is for</p><h2>Accessible enough to teach quickly. Rich enough to replay.</h2><p>7FALL™ is designed for players who enjoy recognizable combinations, visible goals and meaningful push-your-luck decisions.</p></div><div class="fit-grid"><article class="fit reveal"><h3>Family game nights</h3><p>Visible scoring and straightforward turns help new players join without a long rules explanation.</p></article><article class="fit reveal"><h3>Casual strategy players</h3><p>Simple controls conceal a steady stream of tradeoffs, timing choices and score-chasing decisions.</p></article><article class="fit reveal"><h3>Personal-best chasers</h3><p>Random draws and five-round structure make “one more game” a natural next step.</p></article></div></div></section>
 <section class="cta"><div class="shell"><div class="cta-box reveal"><p class="kicker">Your first fate row is waiting</p><h2>One shake. Seven tiles. Your decision.</h2><p>Play one five-round game and discover why a simple draw can become a decision you keep thinking about.</p><a class="btn gold tracked-play" data-location="footer" href="game.html?utm_source=landing_page&utm_medium=internal&utm_campaign=play_free&utm_content=footer">▶ Play 7FALL™ free</a></div></div></section>
 </main>
-<footer><div class="shell footer-row"><span>© 2026 7FALL™. All rights reserved.</span><span>Created by Anthony Maya · <a class="industry-link" href="publisher.html">Industry & licensing</a> · Browser edition v2.4 · Website edition v3.2</span></div></footer>
+<footer><div class="shell footer-row"><span>© 2026 7FALL™. All rights reserved.</span><span>Created by Anthony Maya · <a class="industry-link" href="publisher.html">Industry & licensing</a> · Browser edition v2.4 · Website edition v3.3</span></div></footer>
 <script>
 document.querySelectorAll('.tracked-play').forEach(function(link){link.addEventListener('click',function(){gtag('event','landing_play_click',{button_location:this.dataset.location||'unknown',destination:'game'})})});
 [25,50,75,90].forEach(function(mark){window['scroll'+mark]=false});window.addEventListener('scroll',function(){var max=document.documentElement.scrollHeight-window.innerHeight;if(max<=0)return;var p=Math.round(window.scrollY/max*100);[25,50,75,90].forEach(function(mark){if(p>=mark&&!window['scroll'+mark]){window['scroll'+mark]=true;gtag('event','landing_scroll_depth',{percent_scrolled:mark})}})},{passive:true});
