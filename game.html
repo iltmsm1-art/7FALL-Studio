@@ -24,7 +24,6 @@
     --red:#8b1e1e;
   }
   * { box-sizing: border-box; }
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:hidden}body{max-width:100%;overflow-x:hidden}
   body {
     margin:0;
     font-family: Georgia, "Times New Roman", serif;
@@ -869,6 +868,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:hidden}body{
     50% { box-shadow:0 0 38px rgba(244,202,104,.62); }
   }
 
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:hidden}
+body{max-width:100%;overflow-x:hidden}
+img,svg,video,canvas{max-width:100%}
+
 @media (max-width:900px){
   .wrap{width:100%;max-width:100%;padding:8px}
   .sheet{width:100%;max-width:100%;min-width:0;padding:12px;overflow:hidden}
@@ -906,7 +909,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:hidden}body{
   .symbol-preview img{width:29px;height:29px}
   .special-components-list{display:grid;grid-template-columns:minmax(0,1fr);gap:7px}
   .special-component{grid-template-columns:44px minmax(0,1fr);gap:8px;width:100%;min-width:0;padding:5px 0}
-  .special-component+ .special-component{padding-top:8px;border-top:1px solid #d7aa65}
+  .special-component + .special-component{padding-top:8px;border-top:1px solid #d7aa65}
   .special-component img{width:44px;height:44px}
   .special-component>div{min-width:0}
   .special-component b{display:block;font-size:14px;line-height:1.15;white-space:normal}
@@ -964,6 +967,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;overflow-x:hidden}body{
 }
 </style>
 
+<link rel="manifest" href="manifest.webmanifest?v=2.1">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png?v=2.1">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png?v=2.1">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png?v=2.1">
 </head>
 <body>
 <div class="wrap">
