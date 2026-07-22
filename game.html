@@ -611,6 +611,29 @@
     color:#f4ca68;
     font:700 12px Arial,sans-serif;
   }
+  .fate-share-panel {
+    display:none;
+    margin:14px auto 4px;
+    max-width:460px;
+    padding:14px;
+    border:1px solid rgba(244,202,104,.45);
+    border-radius:14px;
+    background:rgba(0,0,0,.28);
+  }
+  .fate-share-panel.show { display:block; }
+  .fate-share-preview {
+    margin:0 0 12px;
+    padding:11px 12px;
+    border-radius:10px;
+    background:rgba(255,255,255,.06);
+    color:#f5dfb5;
+    font:600 12px/1.5 Arial,sans-serif;
+    text-align:left;
+    white-space:pre-wrap;
+  }
+  .fate-share-options { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; }
+  .fate-share-options button { min-width:120px; }
+  .fate-share-help { margin:10px 0 0; color:#d8c39a; font:600 11px/1.4 Arial,sans-serif; }
   @keyframes fateTitleReveal {
     from { opacity:0; transform:translateY(12px) scale(.94); letter-spacing:5px; }
     to { opacity:1; transform:translateY(0) scale(1); letter-spacing:1.4px; }
@@ -1160,6 +1183,16 @@ img,svg,video,canvas{max-width:100%}
       <button class="share-fate-btn" id="shareFateBtn" type="button" onclick="shareMyFate()">Share My Fate</button>
       <button class="secondary" type="button" onclick="playAgainFromFate()">Play Again</button>
       <button type="button" onclick="closeFateResult()">Close</button>
+    </div>
+    <div class="fate-share-panel" id="fateSharePanel" aria-label="Share options">
+      <div class="fate-share-preview" id="fateSharePreview"></div>
+      <div class="fate-share-options">
+        <button class="share-fate-btn" type="button" onclick="emailMyFate()">Email</button>
+        <button type="button" onclick="copyMyFate()">Copy Message</button>
+        <button type="button" onclick="facebookMyFate()">Facebook</button>
+        <button class="secondary" type="button" onclick="moreShareOptions()">More Options</button>
+      </div>
+      <p class="fate-share-help">Email includes the complete score and Fate message. Facebook copies the message first, then opens Facebook so you can paste it.</p>
     </div>
     <div class="share-status" id="shareFateStatus" aria-live="polite"></div>
   </div>
@@ -1908,43 +1941,80 @@ function playAgainFromFate(){
   startSevenFallGame('fate_result_play_again', false);
 }
 
-async function shareMyFate(){
+function getFateShareText(){
+  if(!latestFateShare) return '';
+  return `${latestFateShare.message}\n\nPlay free:\n${SEVENFALL_SHARE_URL}`;
+}
+
+function shareMyFate(){
+  if(!latestFateShare) return;
+  const panel = document.getElementById('fateSharePanel');
+  const preview = document.getElementById('fateSharePreview');
+  const status = document.getElementById('shareFateStatus');
+  if(preview) preview.textContent = getFateShareText();
+  if(panel) panel.classList.toggle('show');
+  if(status) status.textContent = panel && panel.classList.contains('show')
+    ? 'Choose how you want to share your Fate.'
+    : '';
+}
+
+async function copyMyFate(){
+  const shareText = getFateShareText();
+  const status = document.getElementById('shareFateStatus');
+  try {
+    await navigator.clipboard.writeText(shareText);
+    if(status) status.textContent = 'Full Fate message copied.';
+    trackSevenFall('share_score', {method:'clipboard', final_score:latestFateShare.score, fate_title:latestFateShare.title});
+  } catch(err) {
+    window.prompt('Copy your 7FALL™ challenge:', shareText);
+    if(status) status.textContent = 'Copy the displayed message.';
+    trackSevenFall('share_score', {method:'prompt', final_score:latestFateShare.score, fate_title:latestFateShare.title});
+  }
+}
+
+function emailMyFate(){
+  if(!latestFateShare) return;
+  const subject = `My 7FALL™ Fate: ${latestFateShare.title} — ${latestFateShare.score} points`;
+  const body = getFateShareText();
+  trackSevenFall('share_score', {method:'email', final_score:latestFateShare.score, fate_title:latestFateShare.title});
+  window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
+
+function facebookMyFate(){
   if(!latestFateShare) return;
   const status = document.getElementById('shareFateStatus');
-  const shareText = `${latestFateShare.message}\n\nPlay free:\n${SEVENFALL_SHARE_URL}`;
+  const shareText = getFateShareText();
+  if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
+    navigator.clipboard.writeText(shareText).then(()=>{
+      if(status) status.textContent = 'Fate message copied. Paste it into your Facebook post.';
+    }).catch(()=>{
+      if(status) status.textContent = 'Facebook opened. Copy the message from the preview and paste it into your post.';
+    });
+  } else if(status) {
+    status.textContent = 'Facebook opened. Copy the message from the preview and paste it into your post.';
+  }
+  trackSevenFall('share_score', {method:'facebook', final_score:latestFateShare.score, fate_title:latestFateShare.title});
+  window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(SEVENFALL_SHARE_URL)}`, '_blank', 'noopener,noreferrer');
+}
 
-  // Native sharing generally requires the live HTTPS site and a supported browser/device.
+async function moreShareOptions(){
+  if(!latestFateShare) return;
+  const status = document.getElementById('shareFateStatus');
   if(navigator.share && window.isSecureContext){
     try {
+      // URL-only native sharing keeps the widest set of Windows share targets.
       await navigator.share({
-        title:'I revealed my Fate in 7FALL™',
-        text:shareText
+        title:'Play 7FALL™',
+        url:SEVENFALL_SHARE_URL
       });
-      if(status) status.textContent = 'Your Fate is ready to travel.';
-      trackSevenFall('share_score', {method:'native', final_score:latestFateShare.score, fate_title:latestFateShare.title});
+      if(status) status.textContent = 'Game link shared. Use Copy Message when you also want your score and Fate details.';
+      trackSevenFall('share_score', {method:'native_url', final_score:latestFateShare.score, fate_title:latestFateShare.title});
       return;
     } catch(err) {
-      if(err && err.name === 'AbortError'){
-        if(status) status.textContent = '';
-        return;
-      }
+      if(err && err.name === 'AbortError') return;
     }
   }
-
-  // Clipboard fallback works on many HTTPS pages, but may be blocked for local file previews.
-  if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
-    try {
-      await navigator.clipboard.writeText(shareText);
-      if(status) status.textContent = 'Score challenge copied. Paste it into Facebook, Messages, or email.';
-      trackSevenFall('share_score', {method:'clipboard', final_score:latestFateShare.score, fate_title:latestFateShare.title});
-      return;
-    } catch(err) {}
-  }
-
-  // Universal fallback: display selectable text so the player can copy it manually.
-  window.prompt('Copy your 7FALL™ challenge, then paste it wherever you want to share:', shareText);
-  if(status) status.textContent = 'Your challenge is displayed for copying.';
-  trackSevenFall('share_score', {method:'prompt', final_score:latestFateShare.score, fate_title:latestFateShare.title});
+  await copyMyFate();
 }
 
 function finish(){
@@ -2033,6 +2103,7 @@ Can you beat my Fate?`
   }
 
   document.getElementById('shareFateStatus').textContent='';
+  document.getElementById('fateSharePanel').classList.remove('show');
   document.getElementById('fateResultModal').classList.add('show');
   animateFateScore(max);
   render();
