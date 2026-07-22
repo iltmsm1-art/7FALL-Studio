@@ -630,6 +630,11 @@
     font:600 12px/1.5 Arial,sans-serif;
     text-align:left;
     white-space:pre-wrap;
+    width:100%;
+    min-height:150px;
+    resize:vertical;
+    border:1px solid rgba(244,202,104,.28);
+    box-sizing:border-box;
   }
   .fate-share-options { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; }
   .fate-share-options button { min-width:120px; }
@@ -1185,7 +1190,7 @@ img,svg,video,canvas{max-width:100%}
       <button type="button" onclick="closeFateResult()">Close</button>
     </div>
     <div class="fate-share-panel" id="fateSharePanel" aria-label="Share options">
-      <div class="fate-share-preview" id="fateSharePreview"></div>
+      <textarea class="fate-share-preview" id="fateSharePreview" readonly aria-label="Fate message to copy"></textarea>
       <div class="fate-share-options">
         <button class="share-fate-btn" type="button" onclick="copyMyFate()">Copy Message</button>
       </div>
@@ -1948,7 +1953,7 @@ function shareMyFate(){
   const panel = document.getElementById('fateSharePanel');
   const preview = document.getElementById('fateSharePreview');
   const status = document.getElementById('shareFateStatus');
-  if(preview) preview.textContent = getFateShareText();
+  if(preview) preview.value = getFateShareText();
   if(panel) panel.classList.toggle('show');
   if(status) status.textContent = panel && panel.classList.contains('show')
     ? 'Copy your complete Fate message below.'
@@ -1992,19 +1997,49 @@ async function copyTextReliably(text){
   return false;
 }
 
-async function copyMyFate(){
+function copyMyFate(){
   if(!latestFateShare) return;
   const shareText = getFateShareText();
+  const preview = document.getElementById('fateSharePreview');
   const status = document.getElementById('shareFateStatus');
-  const copied = await copyTextReliably(shareText);
+
+  // Keep the real, visible message selected. This works better in Edge than
+  // copying from an off-screen temporary field, and it gives the player a
+  // guaranteed Ctrl+C fallback if browser permissions block automatic copy.
+  if(preview){
+    preview.value = shareText;
+    preview.focus();
+    preview.select();
+    preview.setSelectionRange(0, preview.value.length);
+  }
+
+  let copied = false;
+  try {
+    copied = document.execCommand('copy');
+  } catch(err) {
+    copied = false;
+  }
+
   if(copied){
     if(status) status.textContent = 'Fate message copied! Paste it into the app you want to use.';
-    trackSevenFall('share_score', {method:'clipboard', final_score:latestFateShare.score, fate_title:latestFateShare.title});
-  } else {
-    window.prompt('Copy your 7FALL™ challenge:', shareText);
-    if(status) status.textContent = 'Automatic copy was blocked. Use Ctrl+C in the copy box.';
-    trackSevenFall('share_score', {method:'prompt', final_score:latestFateShare.score, fate_title:latestFateShare.title});
+    trackSevenFall('share_score', {method:'edge_visible_selection', final_score:latestFateShare.score, fate_title:latestFateShare.title});
+    return;
   }
+
+  if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
+    navigator.clipboard.writeText(shareText).then(()=>{
+      if(status) status.textContent = 'Fate message copied! Paste it into the app you want to use.';
+      trackSevenFall('share_score', {method:'clipboard', final_score:latestFateShare.score, fate_title:latestFateShare.title});
+    }).catch(()=>{
+      if(status) status.textContent = 'Edge blocked automatic copy. The message is selected—press Ctrl+C, then paste it where you want.';
+      if(preview){ preview.focus(); preview.select(); }
+      trackSevenFall('share_score', {method:'manual_ctrl_c', final_score:latestFateShare.score, fate_title:latestFateShare.title});
+    });
+    return;
+  }
+
+  if(status) status.textContent = 'The message is selected—press Ctrl+C, then paste it where you want.';
+  trackSevenFall('share_score', {method:'manual_ctrl_c', final_score:latestFateShare.score, fate_title:latestFateShare.title});
 }
 
 function emailMyFate(){
