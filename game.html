@@ -1911,15 +1911,14 @@ function playAgainFromFate(){
 async function shareMyFate(){
   if(!latestFateShare) return;
   const status = document.getElementById('shareFateStatus');
-  const shareText = `${latestFateShare.message}\n\nPlay free: ${SEVENFALL_SHARE_URL}`;
+  const shareText = `${latestFateShare.message}\n\nPlay free:\n${SEVENFALL_SHARE_URL}`;
 
   // Native sharing generally requires the live HTTPS site and a supported browser/device.
   if(navigator.share && window.isSecureContext){
     try {
       await navigator.share({
-        title:'I just revealed my Fate in 7FALL™',
-        text:latestFateShare.message,
-        url:SEVENFALL_SHARE_URL
+        title:'I revealed my Fate in 7FALL™',
+        text:shareText
       });
       if(status) status.textContent = 'Your Fate is ready to travel.';
       trackSevenFall('share_score', {method:'native', final_score:latestFateShare.score, fate_title:latestFateShare.title});
@@ -1998,22 +1997,17 @@ function finish(){
     ? `You completed five rounds with ${max} points. New Game is now unlocked.`
     : `${winnerLabel} ${winners.length === 1 ? 'wins' : 'share the victory'} with ${max} points. New Game is now unlocked.`;
   const shareLead = state.players.length === 1
-    ? `My Fate has been revealed...`
-    : `${winnerLabel}'s Fate has been revealed...`;
-  const shareResult = state.players.length === 1
-    ? `Final Score: ${max}`
-    : `Winning Score: ${max}`;
+    ? `I became ${fate.title} with ${max} points in 7FALL™!`
+    : `${winnerLabel} earned the title ${fate.title} with ${max} points in 7FALL™!`;
 
   latestFateShare = {
     score:max,
     title:fate.title,
     flavor:fate.flavor,
-    message:`${shareLead}
+    message:`My Fate has been revealed…
 
-7FALL™
-${shareResult}
+Final Score: ${max}
 Fate: ${fate.title}
-
 “${fate.flavor}”
 
 Can you beat my Fate?`
