@@ -1188,9 +1188,8 @@ img,svg,video,canvas{max-width:100%}
       <div class="fate-share-preview" id="fateSharePreview"></div>
       <div class="fate-share-options">
         <button class="share-fate-btn" type="button" onclick="copyMyFate()">Copy Message</button>
-        <button class="secondary" type="button" onclick="moreShareOptions()">Choose App</button>
       </div>
-      <p class="fate-share-help">Copy your Fate message first, then choose an app to share the game link.</p>
+      <p class="fate-share-help">Your Fate message includes your score and the game link. Copy it, then paste it into Facebook, email, text, Discord, Reddit, or any app you choose.</p>
     </div>
     <div class="share-status" id="shareFateStatus" aria-live="polite"></div>
   </div>
@@ -1952,20 +1951,58 @@ function shareMyFate(){
   if(preview) preview.textContent = getFateShareText();
   if(panel) panel.classList.toggle('show');
   if(status) status.textContent = panel && panel.classList.contains('show')
-    ? 'Copy your Fate message first, then choose an app.'
+    ? 'Copy your complete Fate message below.'
     : '';
 }
 
+function legacyCopyText(text){
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  textarea.style.top = '0';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  textarea.setSelectionRange(0, textarea.value.length);
+  let copied = false;
+  try {
+    copied = document.execCommand('copy');
+  } catch(err) {
+    copied = false;
+  }
+  document.body.removeChild(textarea);
+  return copied;
+}
+
+async function copyTextReliably(text){
+  // Try the synchronous copy method first while the button click is still an active user gesture.
+  // This is more dependable in browsers that reject Clipboard API permissions after an await.
+  if(legacyCopyText(text)) return true;
+
+  if(navigator.clipboard && navigator.clipboard.writeText && window.isSecureContext){
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch(err) {
+      // The caller will provide a manual copy prompt.
+    }
+  }
+  return false;
+}
+
 async function copyMyFate(){
+  if(!latestFateShare) return;
   const shareText = getFateShareText();
   const status = document.getElementById('shareFateStatus');
-  try {
-    await navigator.clipboard.writeText(shareText);
-    if(status) status.textContent = 'Full Fate message copied.';
+  const copied = await copyTextReliably(shareText);
+  if(copied){
+    if(status) status.textContent = 'Fate message copied! Paste it into the app you want to use.';
     trackSevenFall('share_score', {method:'clipboard', final_score:latestFateShare.score, fate_title:latestFateShare.title});
-  } catch(err) {
+  } else {
     window.prompt('Copy your 7FALL™ challenge:', shareText);
-    if(status) status.textContent = 'Copy the displayed message.';
+    if(status) status.textContent = 'Automatic copy was blocked. Use Ctrl+C in the copy box.';
     trackSevenFall('share_score', {method:'prompt', final_score:latestFateShare.score, fate_title:latestFateShare.title});
   }
 }
