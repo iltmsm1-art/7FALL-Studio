@@ -1187,12 +1187,10 @@ img,svg,video,canvas{max-width:100%}
     <div class="fate-share-panel" id="fateSharePanel" aria-label="Share options">
       <div class="fate-share-preview" id="fateSharePreview"></div>
       <div class="fate-share-options">
-        <button class="share-fate-btn" type="button" onclick="emailMyFate()">Email</button>
-        <button type="button" onclick="copyMyFate()">Copy Message</button>
-        <button type="button" onclick="facebookMyFate()">Facebook</button>
-        <button class="secondary" type="button" onclick="moreShareOptions()">More Options</button>
+        <button class="share-fate-btn" type="button" onclick="copyMyFate()">Copy Message</button>
+        <button class="secondary" type="button" onclick="moreShareOptions()">Choose App</button>
       </div>
-      <p class="fate-share-help">Email includes the complete score and Fate message. Facebook copies the message first, then opens Facebook so you can paste it.</p>
+      <p class="fate-share-help">Copy your Fate message first, then choose an app to share the game link.</p>
     </div>
     <div class="share-status" id="shareFateStatus" aria-live="polite"></div>
   </div>
@@ -1954,7 +1952,7 @@ function shareMyFate(){
   if(preview) preview.textContent = getFateShareText();
   if(panel) panel.classList.toggle('show');
   if(status) status.textContent = panel && panel.classList.contains('show')
-    ? 'Choose how you want to share your Fate.'
+    ? 'Copy your Fate message first, then choose an app.'
     : '';
 }
 
@@ -2007,7 +2005,7 @@ async function moreShareOptions(){
         title:'Play 7FALL™',
         url:SEVENFALL_SHARE_URL
       });
-      if(status) status.textContent = 'Game link shared. Use Copy Message when you also want your score and Fate details.';
+      if(status) status.textContent = 'Game link shared.';
       trackSevenFall('share_score', {method:'native_url', final_score:latestFateShare.score, fate_title:latestFateShare.title});
       return;
     } catch(err) {
