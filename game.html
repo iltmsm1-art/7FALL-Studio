@@ -806,6 +806,28 @@
   
 
 
+  /* v2.5 play-first usability refinement */
+  .play-heading-row {
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:6px;
+  }
+  .play-heading-row .section-title {
+    margin:0;
+  }
+  .learn-play-btn {
+    padding:7px 12px;
+    font-size:12px;
+    background:#d89c3a;
+    color:#111;
+  }
+  #howToPlay {
+    scroll-margin-top:16px;
+  }
+
   /* v2.2 control hierarchy polish */
   .controls-grouped {
     display:grid;
@@ -1052,12 +1074,10 @@ img,svg,video,canvas{max-width:100%}
 
   <div class="main">
     <div>
-      <section class="panel">
-        <h2 class="section-title">How To Play</h2>
-        <div class="rules">
-          <div class="rule"><h3><span class="num">1</span>Draw</h3>Select <b>Shake Can &amp; Draw 7</b>.<br><br>The can will shake and randomly draw 7 tiles for you.<br><br>These tiles appear face-up as your Fate Row.</div>
-          <div class="rule"><h3><span class="num">2</span>Discard</h3>You may discard up to <b>3 total tiles</b>.<br>Discard one at a time or all at once.<br>Each discarded tile is immediately replaced.</div>
-          <div class="rule"><h3><span class="num">3</span>Score</h3>Replacement tiles are locked and cannot be discarded again this turn.<br>Assign Wilds first, then apply Breaks.<br>Score your final Fate Row.</div>
+      <section class="panel" id="playArea">
+        <div class="play-heading-row">
+          <h2 class="section-title">Play</h2>
+          <button class="learn-play-btn" type="button" onclick="document.getElementById('howToPlay').scrollIntoView({behavior:'smooth',block:'start'})">Learn to Play</button>
         </div>
 
         <div class="phase-indicator" id="phaseIndicator" aria-live="polite">
@@ -1065,10 +1085,6 @@ img,svg,video,canvas{max-width:100%}
           <span class="phase-step" data-phase="discard">2 Discard</span>
           <span class="phase-step" data-phase="score">3 Score</span>
         </div>
-      </section>
-
-      <section class="panel">
-        <h2 class="section-title">Play</h2>
 
         <h2 class="section-title">Fate Row</h2>
         <p class="tiny" style="text-align:center;margin-top:-6px">Click multiple eligible tiles to select them. Click again to unselect.</p>
@@ -1093,7 +1109,7 @@ img,svg,video,canvas{max-width:100%}
           <div class="gameplay-controls" aria-label="Gameplay controls">
             <button id="drawBtn">Shake Can &amp; Draw 7</button>
             <button class="danger" id="discardBtn" disabled>Discard Selected</button>
-            <button id="scoreBtn" disabled>Score Row</button>
+            <button id="scoreBtn" disabled>Score</button>
           </div>
 
           <div class="utility-controls" aria-label="Game settings">
@@ -1101,7 +1117,7 @@ img,svg,video,canvas{max-width:100%}
             <button class="secondary" id="soundBtn" type="button">Sound: On</button>
           </div>
         </div>
-        <div class="version-badge">7FALL™ · v2.4 Publisher Analytics</div>
+        <div class="version-badge">7FALL™ · v2.5 Play-First UI</div>
       </section>
 
       <section class="panel">
@@ -1123,6 +1139,15 @@ img,svg,video,canvas{max-width:100%}
           <div class="log" id="scoreExplanation">Last score will appear here after you score a round.</div>
         </section>
         <div class="log round-log-hidden" id="log" aria-hidden="true"></div>
+      </section>
+
+      <section class="panel" id="howToPlay">
+        <h2 class="section-title">How To Play</h2>
+        <div class="rules">
+          <div class="rule"><h3><span class="num">1</span>Draw</h3>Select <b>Shake Can &amp; Draw 7</b>.<br><br>The can will shake and randomly draw 7 tiles for you.<br><br>These tiles appear face-up as your Fate Row.</div>
+          <div class="rule"><h3><span class="num">2</span>Discard</h3>You may discard up to <b>3 total tiles</b>.<br>Discard one at a time or all at once.<br>Each discarded tile is immediately replaced.</div>
+          <div class="rule"><h3><span class="num">3</span>Score</h3>Replacement tiles are locked and cannot be discarded again this turn.<br>Assign Wilds first, then apply Breaks.<br>Score your final Fate Row.</div>
+        </div>
       </section>
 
     </div>
@@ -1759,7 +1784,7 @@ function render(){
   discardButton.disabled=state.animating || !state.drawn || state.selected.size===0 || state.used>=3 || state.gameOver;
   scoreButton.disabled=state.animating || !state.drawn || state.gameOver;
   discardButton.textContent = state.phase==='discard' ? 'Discard Selected' : 'Discard Selected';
-  scoreButton.textContent = state.phase==='discard' ? 'Skip Discard / Score' : 'Score Row';
+  scoreButton.textContent = 'Score';
   document.querySelectorAll('.phase-step').forEach(el=>el.classList.toggle('active', el.dataset.phase===(state.phase||'draw')));
   updateDailyPanel();
 
