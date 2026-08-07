@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>7FALL™ v2.4 — Publisher Analytics</title>
+<title>7FALL™ v2.6 — Daily Fate Target</title>
 <!-- 7FALL Analytics: replace G-71VGQ7H6G4 with your Google Analytics 4 Measurement ID before publishing. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-71VGQ7H6G4"></script>
 <script>
@@ -879,6 +879,59 @@
   
 
 
+  /* v2.6 Daily Fate Target — local-only return-play challenge. */
+  .daily-target-card {
+    margin:8px auto 14px;
+    max-width:680px;
+    padding:12px 14px;
+    border:2px solid var(--gold);
+    border-radius:16px;
+    background:linear-gradient(135deg,#111 0%,#2b1b0c 62%,#6d3510 100%);
+    color:#fff7e5;
+    font-family:Arial,sans-serif;
+    text-align:center;
+    box-shadow:0 8px 20px rgba(0,0,0,.14);
+  }
+  .daily-target-kicker {
+    color:#f4ca68;
+    font:900 11px Arial,sans-serif;
+    letter-spacing:1.8px;
+    text-transform:uppercase;
+  }
+  .daily-target-main {
+    margin:4px 0 3px;
+    font:900 22px Georgia,serif;
+    letter-spacing:.5px;
+  }
+  .daily-target-main b { color:#f4ca68; font-size:30px; }
+  .daily-target-copy { margin:0; font-size:12px; line-height:1.35; color:#f3dfb7; }
+  .daily-target-status {
+    display:inline-block;
+    margin-top:8px;
+    padding:4px 9px;
+    border-radius:999px;
+    border:1px solid rgba(244,202,104,.55);
+    font-size:11px;
+    font-weight:800;
+  }
+  .daily-target-status.conquered { background:#f4ca68; color:#111; }
+
+  .daily-badge {
+    display:none;
+    margin:14px auto 4px;
+    max-width:430px;
+    padding:14px 16px;
+    border:2px solid #f4ca68;
+    border-radius:16px;
+    background:linear-gradient(135deg,rgba(244,202,104,.18),rgba(201,149,47,.06));
+    box-shadow:0 0 26px rgba(244,202,104,.24);
+    animation:personalBestReveal .8s ease-out both, personalBestGlow 1.8s ease-in-out .8s 2;
+  }
+  .daily-badge.show { display:block; }
+  .daily-badge-kicker { color:#f4ca68; font:900 13px Arial,sans-serif; letter-spacing:2px; text-transform:uppercase; }
+  .daily-badge-title { margin-top:6px; color:#fff7e5; font:900 20px Georgia,serif; }
+  .daily-badge-copy { margin-top:6px; color:#e6c98c; font:700 12px Arial,sans-serif; line-height:1.4; }
+
   /* v2.4 Publisher Analytics celebration */
   .personal-best {
     display:none;
@@ -1080,6 +1133,13 @@ img,svg,video,canvas{max-width:100%}
           <button class="learn-play-btn" type="button" onclick="document.getElementById('howToPlay').scrollIntoView({behavior:'smooth',block:'start'})">Learn to Play</button>
         </div>
 
+        <div class="daily-target-card" id="dailyTargetCard" aria-live="polite">
+          <div class="daily-target-kicker">Today’s Fate Target</div>
+          <div class="daily-target-main">Score <b id="dailyTargetScore">--</b> or higher</div>
+          <p class="daily-target-copy">Complete one normal five-round game to conquer today’s Fate. Your draws remain completely random.</p>
+          <div class="daily-target-status" id="dailyTargetStatus">Not yet conquered today</div>
+        </div>
+
         <div class="phase-indicator" id="phaseIndicator" aria-live="polite">
           <span class="phase-step" data-phase="draw">1 Draw</span>
           <span class="phase-step" data-phase="discard">2 Discard</span>
@@ -1117,7 +1177,7 @@ img,svg,video,canvas{max-width:100%}
             <button class="secondary" id="soundBtn" type="button">Sound: On</button>
           </div>
         </div>
-        <div class="version-badge">7FALL™ · v2.5 Play-First UI</div>
+        <div class="version-badge">7FALL™ · v2.6 Daily Fate Target</div>
       </section>
 
       <section class="panel">
@@ -1207,6 +1267,11 @@ img,svg,video,canvas{max-width:100%}
       <div class="personal-best-kicker">New High Score</div>
       <div class="personal-best-message">The Fates have rewritten your destiny.</div>
       <div class="personal-best-compare" id="personalBestCompare"></div>
+    </div>
+    <div class="daily-badge" id="dailyFateBadge" aria-live="polite">
+      <div class="daily-badge-kicker">Daily Badge Earned</div>
+      <div class="daily-badge-title">FATE CONQUERED</div>
+      <div class="daily-badge-copy" id="dailyFateBadgeCopy"></div>
     </div>
     <p class="fate-result-copy" id="fateResultCopy"></p>
     <div class="fate-actions">
@@ -1444,6 +1509,76 @@ function updateDailyPanel(){
   if(activeEl) activeEl.textContent = active ? "SESSION STATS" : "SESSION STATS";
 }
 
+
+// v2.6 Daily Fate Target. This does NOT change the draw sequence.
+// The date only selects a target score shared by everyone who loads the game that day.
+const DAILY_TARGET_MIN = 28;
+const DAILY_TARGET_MAX = 34;
+const DAILY_BADGES_KEY = 'sevenfallDailyFateBadges';
+
+function getDailyTarget(dateSeed=getDailySeed()){
+  let hash = 2166136261;
+  for(let i=0;i<dateSeed.length;i++){
+    hash ^= dateSeed.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  const span = DAILY_TARGET_MAX - DAILY_TARGET_MIN + 1;
+  return DAILY_TARGET_MIN + ((hash >>> 0) % span);
+}
+
+function getDailyFateBadges(){
+  try{
+    const value = JSON.parse(localStorage.getItem(DAILY_BADGES_KEY) || '[]');
+    return Array.isArray(value) ? value : [];
+  }catch(e){
+    return [];
+  }
+}
+
+function hasConqueredDailyTarget(seed=getDailySeed()){
+  return getDailyFateBadges().some(entry => entry && entry.date === seed);
+}
+
+function saveDailyFateBadge(finalScore){
+  const seed = getDailySeed();
+  const target = getDailyTarget(seed);
+  const score = Number(finalScore) || 0;
+  const badges = getDailyFateBadges();
+  const existing = badges.find(entry => entry && entry.date === seed);
+
+  if(score < target){
+    return {earned:false, alreadyEarned:!!existing, seed, target, score, totalBadges:badges.length};
+  }
+
+  if(existing){
+    if(score > (Number(existing.score) || 0)){
+      existing.score = score;
+      localStorage.setItem(DAILY_BADGES_KEY, JSON.stringify(badges.slice(-366)));
+    }
+    return {earned:false, alreadyEarned:true, seed, target, score, totalBadges:badges.length};
+  }
+
+  badges.push({date:seed, target, score, earnedAt:new Date().toISOString()});
+  localStorage.setItem(DAILY_BADGES_KEY, JSON.stringify(badges.slice(-366)));
+  trackSevenFall('daily_fate_conquered', {target_score:target, final_score:score, badge_count:badges.length});
+  return {earned:true, alreadyEarned:false, seed, target, score, totalBadges:badges.length};
+}
+
+function updateDailyTargetDisplay(){
+  const seed = getDailySeed();
+  const target = getDailyTarget(seed);
+  const targetEl = document.getElementById('dailyTargetScore');
+  const statusEl = document.getElementById('dailyTargetStatus');
+  if(targetEl) targetEl.textContent = target;
+  if(statusEl){
+    const badges = getDailyFateBadges();
+    const today = badges.find(entry => entry && entry.date === seed);
+    statusEl.classList.toggle('conquered', !!today);
+    statusEl.textContent = today
+      ? `Fate conquered today • ${badges.length} badge${badges.length === 1 ? '' : 's'} earned`
+      : `Not yet conquered today • ${badges.length} badge${badges.length === 1 ? '' : 's'} earned`;
+  }
+}
 
 // SevenFall Studio sound system - lightweight Web Audio tones.
 // Sounds are triggered only after a user action, which keeps mobile browsers happy.
@@ -1787,6 +1922,7 @@ function render(){
   scoreButton.textContent = 'Score';
   document.querySelectorAll('.phase-step').forEach(el=>el.classList.toggle('active', el.dataset.phase===(state.phase||'draw')));
   updateDailyPanel();
+  updateDailyTargetDisplay();
 
   const fate=document.getElementById('fateRow');
   fate.innerHTML='';
@@ -2175,7 +2311,7 @@ Final Score: ${max}
 Fate: ${fate.title}
 “${fate.flavor}”
 
-Can you beat my Fate?`
+Can you beat my Fate?${max >= getDailyTarget() ? `\n\nToday’s Fate Target: ${getDailyTarget()} — CONQUERED` : ''}`
   };
 
   document.getElementById('fateResultTitle').textContent=fate.title;
@@ -2196,6 +2332,22 @@ Can you beat my Fate?`
         : `Previous best: ${personalBestResult.previousBestGame} • New best: ${personalBestResult.newBestGame}`;
     }
   }
+
+  const dailyBadgeResult = saveDailyFateBadge(max);
+  const dailyFateBadge = document.getElementById('dailyFateBadge');
+  const dailyFateBadgeCopy = document.getElementById('dailyFateBadgeCopy');
+  if(dailyFateBadge && dailyFateBadgeCopy){
+    dailyFateBadge.classList.remove('show');
+    dailyFateBadgeCopy.textContent = '';
+    if(dailyBadgeResult.earned){
+      dailyFateBadge.classList.add('show');
+      dailyFateBadgeCopy.textContent = `You scored ${max}, beating today’s target of ${dailyBadgeResult.target}. Badge #${dailyBadgeResult.totalBadges} is saved on this device.`;
+    } else if(dailyBadgeResult.alreadyEarned && max >= dailyBadgeResult.target){
+      dailyFateBadge.classList.add('show');
+      dailyFateBadgeCopy.textContent = `Today’s target was ${dailyBadgeResult.target}. You have already earned today’s Fate Conquered badge.`;
+    }
+  }
+  updateDailyTargetDisplay();
 
   document.getElementById('shareFateStatus').textContent='';
   document.getElementById('fateSharePanel').classList.remove('show');
@@ -2239,6 +2391,7 @@ if(savedPlayers && ['1','2','3','4'].includes(savedPlayers)){
 } else {
   document.getElementById('playerCount').value = '1';
 }
+updateDailyTargetDisplay();
 init(false, 'page_load');
 </script>
 
