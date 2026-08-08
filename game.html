@@ -2082,14 +2082,14 @@ function startSevenFallGame(source, dailyMode=false){
     : null;
 
   trackSevenFall('new_game', {
-    source:source,
+    start_source:source,
     daily_mode:!!dailyMode,
     after_completed_game:wasCompleted
   });
 
   if(wasCompleted){
     trackSevenFall('play_again', {
-      source:source,
+      start_source:source,
       daily_mode:!!dailyMode,
       seconds_after_finish:replayDelaySeconds,
       previous_final_score:sevenFallLastFinalScore
