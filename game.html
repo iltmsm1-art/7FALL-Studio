@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>7FALL™ v2.6 — Daily Fate Target</title>
+<title>7FALL™ v2.7 — First Fate Milestone</title>
 <!-- 7FALL Analytics: replace G-71VGQ7H6G4 with your Google Analytics 4 Measurement ID before publishing. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-71VGQ7H6G4"></script>
 <script>
@@ -932,6 +932,29 @@
   .daily-badge-title { margin-top:6px; color:#fff7e5; font:900 20px Georgia,serif; }
   .daily-badge-copy { margin-top:6px; color:#e6c98c; font:700 12px Arial,sans-serif; line-height:1.4; }
 
+  .daily-milestone-progress {
+    margin-top:8px;
+    color:#f3dfb7;
+    font:800 11px/1.35 Arial,sans-serif;
+    letter-spacing:.25px;
+  }
+  .daily-milestone-progress.unlocked { color:#f4ca68; }
+  .daily-milestone {
+    display:none;
+    margin:14px auto 4px;
+    max-width:430px;
+    padding:16px;
+    border:2px solid #f4ca68;
+    border-radius:16px;
+    background:linear-gradient(145deg,rgba(244,202,104,.24),rgba(109,53,16,.18));
+    box-shadow:0 0 34px rgba(244,202,104,.34);
+    animation:personalBestReveal .8s ease-out both, personalBestGlow 1.8s ease-in-out .8s 2;
+  }
+  .daily-milestone.show { display:block; }
+  .daily-milestone-kicker { color:#f4ca68; font:900 12px Arial,sans-serif; letter-spacing:2px; text-transform:uppercase; }
+  .daily-milestone-title { margin-top:7px; color:#fff; font:900 22px Georgia,serif; letter-spacing:1px; }
+  .daily-milestone-copy { margin-top:7px; color:#f3dfb7; font:700 12px/1.45 Arial,sans-serif; }
+
   /* v2.4 Publisher Analytics celebration */
   .personal-best {
     display:none;
@@ -1138,6 +1161,7 @@ img,svg,video,canvas{max-width:100%}
           <div class="daily-target-main">Score <b id="dailyTargetScore">--</b> or higher</div>
           <p class="daily-target-copy">Complete one normal five-round game to conquer today’s Fate. Your draws remain completely random.</p>
           <div class="daily-target-status" id="dailyTargetStatus">Not yet conquered today</div>
+          <div class="daily-milestone-progress" id="dailyMilestoneProgress">0 of 5 badges toward Keeper of Five Fates</div>
         </div>
 
         <div class="phase-indicator" id="phaseIndicator" aria-live="polite">
@@ -1177,7 +1201,7 @@ img,svg,video,canvas{max-width:100%}
             <button class="secondary" id="soundBtn" type="button">Sound: On</button>
           </div>
         </div>
-        <div class="version-badge">7FALL™ · v2.6 Daily Fate Target</div>
+        <div class="version-badge">7FALL™ · v2.7 First Fate Milestone</div>
       </section>
 
       <section class="panel">
@@ -1272,6 +1296,11 @@ img,svg,video,canvas{max-width:100%}
       <div class="daily-badge-kicker">Daily Badge Earned</div>
       <div class="daily-badge-title">FATE CONQUERED</div>
       <div class="daily-badge-copy" id="dailyFateBadgeCopy"></div>
+    </div>
+    <div class="daily-milestone" id="dailyFateMilestone" aria-live="polite">
+      <div class="daily-milestone-kicker">Fate Milestone Unlocked</div>
+      <div class="daily-milestone-title">KEEPER OF FIVE FATES</div>
+      <div class="daily-milestone-copy">You conquered the Daily Fate on five different days. This title is now yours on this device.</div>
     </div>
     <p class="fate-result-copy" id="fateResultCopy"></p>
     <div class="fate-actions">
@@ -1515,6 +1544,8 @@ function updateDailyPanel(){
 const DAILY_TARGET_MIN = 28;
 const DAILY_TARGET_MAX = 34;
 const DAILY_BADGES_KEY = 'sevenfallDailyFateBadges';
+const DAILY_FIRST_MILESTONE_COUNT = 5;
+const DAILY_FIRST_MILESTONE_TITLE = 'Keeper of Five Fates';
 
 function getDailyTarget(dateSeed=getDailySeed()){
   let hash = 2166136261;
@@ -1560,8 +1591,16 @@ function saveDailyFateBadge(finalScore){
 
   badges.push({date:seed, target, score, earnedAt:new Date().toISOString()});
   localStorage.setItem(DAILY_BADGES_KEY, JSON.stringify(badges.slice(-366)));
+  const milestoneUnlocked = badges.length === DAILY_FIRST_MILESTONE_COUNT;
   trackSevenFall('daily_fate_conquered', {target_score:target, final_score:score, badge_count:badges.length});
-  return {earned:true, alreadyEarned:false, seed, target, score, totalBadges:badges.length};
+  if(milestoneUnlocked){
+    trackSevenFall('daily_fate_milestone', {
+      milestone_badges:DAILY_FIRST_MILESTONE_COUNT,
+      milestone_title:DAILY_FIRST_MILESTONE_TITLE,
+      badge_count:badges.length
+    });
+  }
+  return {earned:true, alreadyEarned:false, seed, target, score, totalBadges:badges.length, milestoneUnlocked};
 }
 
 function updateDailyTargetDisplay(){
@@ -1569,14 +1608,22 @@ function updateDailyTargetDisplay(){
   const target = getDailyTarget(seed);
   const targetEl = document.getElementById('dailyTargetScore');
   const statusEl = document.getElementById('dailyTargetStatus');
+  const milestoneEl = document.getElementById('dailyMilestoneProgress');
+  const badges = getDailyFateBadges();
+  const today = badges.find(entry => entry && entry.date === seed);
   if(targetEl) targetEl.textContent = target;
   if(statusEl){
-    const badges = getDailyFateBadges();
-    const today = badges.find(entry => entry && entry.date === seed);
     statusEl.classList.toggle('conquered', !!today);
     statusEl.textContent = today
       ? `Fate conquered today • ${badges.length} badge${badges.length === 1 ? '' : 's'} earned`
       : `Not yet conquered today • ${badges.length} badge${badges.length === 1 ? '' : 's'} earned`;
+  }
+  if(milestoneEl){
+    const unlocked = badges.length >= DAILY_FIRST_MILESTONE_COUNT;
+    milestoneEl.classList.toggle('unlocked', unlocked);
+    milestoneEl.textContent = unlocked
+      ? `${DAILY_FIRST_MILESTONE_TITLE} unlocked • ${badges.length} badges earned`
+      : `${badges.length} of ${DAILY_FIRST_MILESTONE_COUNT} badges toward ${DAILY_FIRST_MILESTONE_TITLE}`;
   }
 }
 
@@ -2336,12 +2383,17 @@ Can you beat my Fate?${max >= getDailyTarget() ? `\n\nToday’s Fate Target: ${g
   const dailyBadgeResult = saveDailyFateBadge(max);
   const dailyFateBadge = document.getElementById('dailyFateBadge');
   const dailyFateBadgeCopy = document.getElementById('dailyFateBadgeCopy');
+  const dailyFateMilestone = document.getElementById('dailyFateMilestone');
+  if(dailyFateMilestone) dailyFateMilestone.classList.remove('show');
   if(dailyFateBadge && dailyFateBadgeCopy){
     dailyFateBadge.classList.remove('show');
     dailyFateBadgeCopy.textContent = '';
     if(dailyBadgeResult.earned){
       dailyFateBadge.classList.add('show');
       dailyFateBadgeCopy.textContent = `You scored ${max}, beating today’s target of ${dailyBadgeResult.target}. Badge #${dailyBadgeResult.totalBadges} is saved on this device.`;
+      if(dailyBadgeResult.milestoneUnlocked && dailyFateMilestone){
+        dailyFateMilestone.classList.add('show');
+      }
     } else if(dailyBadgeResult.alreadyEarned && max >= dailyBadgeResult.target){
       dailyFateBadge.classList.add('show');
       dailyFateBadgeCopy.textContent = `Today’s target was ${dailyBadgeResult.target}. You have already earned today’s Fate Conquered badge.`;
