@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>7FALL™ v2.8 — Fate Title Progression</title>
+<title>7FALL™ v2.9 — Live Scoring Preview</title>
 <!-- 7FALL Analytics: replace G-71VGQ7H6G4 with your Google Analytics 4 Measurement ID before publishing. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-71VGQ7H6G4"></script>
 <script>
@@ -750,6 +750,46 @@
   }
 
 
+  /* v2.9 live scoring preview — makes the current row legible without choosing for the player. */
+  .live-score-card {
+    max-width:680px;
+    margin:10px auto 12px;
+    padding:11px 14px;
+    border:2px solid rgba(201,149,47,.55);
+    border-radius:14px;
+    background:#fff7e5;
+    text-align:center;
+    font-family:Arial,sans-serif;
+    line-height:1.35;
+  }
+  .live-score-card.is-selection {
+    border-color:#8b1e1e;
+    background:#fff1e8;
+  }
+  .live-score-kicker {
+    display:block;
+    color:#6b5840;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:1.1px;
+    text-transform:uppercase;
+  }
+  .live-score-main {
+    display:block;
+    margin-top:3px;
+    font-family:Georgia,serif;
+    font-size:20px;
+    font-weight:900;
+    color:#111;
+  }
+  .live-score-note {
+    display:block;
+    margin-top:3px;
+    color:#6b5840;
+    font-size:12px;
+    font-weight:700;
+  }
+
   .phase-indicator {
     display:flex;
     justify-content:center;
@@ -1186,6 +1226,11 @@ img,svg,video,canvas{max-width:100%}
         <h2 class="section-title">Fate Row</h2>
         <p class="tiny" style="text-align:center;margin-top:-6px">Click multiple eligible tiles to select them. Click again to unselect.</p>
         <div class="fate" id="fateRow"></div>
+        <div class="live-score-card" id="liveScoreCard" aria-live="polite">
+          <span class="live-score-kicker" id="liveScoreKicker">Current Fate Row</span>
+          <span class="live-score-main" id="liveScoreMain">Draw 7 tiles to see your current score.</span>
+          <span class="live-score-note" id="liveScoreNote">The game shows what your row is worth; the discard choice is still yours.</span>
+        </div>
         <div class="tile-help"><button type="button" onclick="showTileHelp('Wild')">What does Wild do?</button><button type="button" onclick="showTileHelp('Break')">What does Break do?</button></div>
 
         <div class="status">
@@ -1214,7 +1259,7 @@ img,svg,video,canvas{max-width:100%}
             <button class="secondary" id="soundBtn" type="button">Sound: On</button>
           </div>
         </div>
-        <div class="version-badge">7FALL™ · v2.8 Fate Title Progression</div>
+        <div class="version-badge">7FALL™ · v2.9 Live Scoring Preview</div>
       </section>
 
       <section class="panel">
@@ -1994,6 +2039,37 @@ function score(row){
   return best;
 }
 
+function updateLiveScorePreview(){
+  const card=document.getElementById('liveScoreCard');
+  const kicker=document.getElementById('liveScoreKicker');
+  const main=document.getElementById('liveScoreMain');
+  const note=document.getElementById('liveScoreNote');
+  if(!card || !kicker || !main || !note) return;
+
+  card.classList.toggle('is-selection', !!(state.drawn && state.selected && state.selected.size));
+
+  if(!state.drawn || !state.row.length){
+    kicker.textContent='Current Fate Row';
+    main.textContent='Draw 7 tiles to see your current score.';
+    note.textContent='The game shows what your row is worth; the discard choice is still yours.';
+    return;
+  }
+
+  const current=score(state.row);
+  if(state.selected && state.selected.size){
+    const remaining=state.row.filter((t,i)=>!state.selected.has(i));
+    const preview=score(remaining);
+    const count=state.selected.size;
+    kicker.textContent='If You Discard the Selected Tile' + (count===1?'':'s');
+    main.textContent='Remaining Row: ' + preview.label.toUpperCase() + ' — ' + preview.points + ' POINT' + (preview.points===1?'':'S');
+    note.textContent=count + ' selected for discard · Replacement tiles are random, so your final score may change.';
+  } else {
+    kicker.textContent='Current Fate Row';
+    main.textContent=current.label.toUpperCase() + ' — ' + current.points + ' POINT' + (current.points===1?'':'S');
+    note.textContent='This is the highest scoring category in your row right now.';
+  }
+}
+
 function render(){
   updateSessionStatsDisplay();
   document.getElementById('round').textContent=Math.min(state.round,5);
@@ -2013,6 +2089,7 @@ function render(){
   document.querySelectorAll('.phase-step').forEach(el=>el.classList.toggle('active', el.dataset.phase===(state.phase||'draw')));
   updateDailyPanel();
   updateDailyTargetDisplay();
+  updateLiveScorePreview();
 
   const fate=document.getElementById('fateRow');
   fate.innerHTML='';
