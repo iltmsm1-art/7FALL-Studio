@@ -2067,8 +2067,13 @@ function updateLiveScorePreview(){
   } else {
     kicker.textContent='Current Fate Row';
     if(current.points===0){
-      main.textContent='NO SCORE YET — 0 POINTS';
-      note.textContent='No matching combination yet. Select up to 3 tiles to discard and draw replacements.';
+      if(state.used>=3){
+        main.textContent='NO MATCH — 0 POINTS';
+        note.textContent='No scoring combination in this Fate Row. Your discards are used; score the round when ready.';
+      } else {
+        main.textContent='NO MATCH YET — 0 POINTS';
+        note.textContent='No scoring combination in this Fate Row. Select up to 3 tiles to discard and draw replacements.';
+      }
     } else {
       main.textContent=current.label.toUpperCase() + ' — ' + current.points + ' POINT' + (current.points===1?'':'S');
       note.textContent='This is the highest scoring category in your row right now.';
