@@ -2066,8 +2066,13 @@ function updateLiveScorePreview(){
     note.textContent=count + ' selected for discard · Replacement tiles are random, so your final score may change.';
   } else {
     kicker.textContent='Current Fate Row';
-    main.textContent=current.label.toUpperCase() + ' — ' + current.points + ' POINT' + (current.points===1?'':'S');
-    note.textContent='This is the highest scoring category in your row right now.';
+    if(current.points===0){
+      main.textContent='NO SCORE YET — 0 POINTS';
+      note.textContent='No matching combination yet. Select up to 3 tiles to discard and draw replacements.';
+    } else {
+      main.textContent=current.label.toUpperCase() + ' — ' + current.points + ' POINT' + (current.points===1?'':'S');
+      note.textContent='This is the highest scoring category in your row right now.';
+    }
   }
 }
 
