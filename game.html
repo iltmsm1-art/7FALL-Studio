@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>7FALL™ v2.10 — Live Scoring + Fate Titles · itch.io</title>
+<title>7FALL™ v2.8.3 — Mobile-First Play · itch.io</title>
 <!-- 7FALL Analytics: replace G-71VGQ7H6G4 with your Google Analytics 4 Measurement ID before publishing. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-71VGQ7H6G4"></script>
 <script>
@@ -1633,7 +1633,7 @@ img,svg,video,canvas{max-width:100%}
             <button class="secondary" id="soundBtn" type="button">Sound: On</button>
           </div>
         </div>
-        <div class="version-badge">7FALL™ · v2.10 Live Scoring + Fate Titles · itch.io</div>
+        <div class="version-badge">7FALL™ · v2.9 Live Scoring Preview · itch.io</div>
       </section>
 
       <section class="panel">
@@ -1815,7 +1815,7 @@ function trackSevenFall(eventName, params={}){
   const payload = {
     game_title: '7FALL',
     distribution_platform: 'itch_io',
-    distribution_build: 'v2.10',
+    distribution_build: 'v2.8',
     player_id: sevenFallPlayerId,
     game_id: sevenFallGameId || '',
     visit_count: sevenFallVisitCount,
@@ -1992,19 +1992,6 @@ const DAILY_FIRST_MILESTONE_COUNT = 5;
 const DAILY_FIRST_MILESTONE_TITLE = 'Keeper of Five Fates';
 const DAILY_SECOND_MILESTONE_COUNT = 10;
 const DAILY_SECOND_MILESTONE_TITLE = 'Master of the Daily Fate';
-const DAILY_THIRD_MILESTONE_COUNT = 15;
-const DAILY_THIRD_MILESTONE_TITLE = 'Warden of Fate';
-const DAILY_FOURTH_MILESTONE_COUNT = 20;
-const DAILY_FOURTH_MILESTONE_TITLE = 'Champion of Fate';
-const DAILY_FIFTH_MILESTONE_COUNT = 25;
-const DAILY_FIFTH_MILESTONE_TITLE = 'Legend of the Seven Fates';
-const DAILY_FATE_MILESTONES = [
-  {count:DAILY_FIRST_MILESTONE_COUNT, title:DAILY_FIRST_MILESTONE_TITLE},
-  {count:DAILY_SECOND_MILESTONE_COUNT, title:DAILY_SECOND_MILESTONE_TITLE},
-  {count:DAILY_THIRD_MILESTONE_COUNT, title:DAILY_THIRD_MILESTONE_TITLE},
-  {count:DAILY_FOURTH_MILESTONE_COUNT, title:DAILY_FOURTH_MILESTONE_TITLE},
-  {count:DAILY_FIFTH_MILESTONE_COUNT, title:DAILY_FIFTH_MILESTONE_TITLE}
-];
 
 function getDailyTarget(dateSeed=getDailySeed()){
   let hash = 2166136261;
@@ -2050,7 +2037,12 @@ function saveDailyFateBadge(finalScore){
 
   badges.push({date:seed, target, score, earnedAt:new Date().toISOString()});
   localStorage.setItem(DAILY_BADGES_KEY, JSON.stringify(badges.slice(-366)));
-  let milestoneUnlocked = DAILY_FATE_MILESTONES.find(milestone => milestone.count === badges.length) || null;
+  let milestoneUnlocked = null;
+  if(badges.length === DAILY_FIRST_MILESTONE_COUNT){
+    milestoneUnlocked = {count:DAILY_FIRST_MILESTONE_COUNT, title:DAILY_FIRST_MILESTONE_TITLE};
+  } else if(badges.length === DAILY_SECOND_MILESTONE_COUNT){
+    milestoneUnlocked = {count:DAILY_SECOND_MILESTONE_COUNT, title:DAILY_SECOND_MILESTONE_TITLE};
+  }
   trackSevenFall('daily_fate_conquered', {target_score:target, final_score:score, badge_count:badges.length});
   if(milestoneUnlocked){
     trackSevenFall('daily_fate_milestone', {
@@ -2078,28 +2070,25 @@ function updateDailyTargetDisplay(){
       : `Not yet conquered today • ${badges.length} badge${badges.length === 1 ? '' : 's'} earned`;
   }
   if(milestoneEl){
-    const unlockedMilestones = DAILY_FATE_MILESTONES.filter(milestone => badges.length >= milestone.count);
-    const currentMilestone = unlockedMilestones.length ? unlockedMilestones[unlockedMilestones.length - 1] : null;
-    const nextMilestone = DAILY_FATE_MILESTONES.find(milestone => badges.length < milestone.count) || null;
-    milestoneEl.classList.toggle('unlocked', !!currentMilestone);
-    if(nextMilestone){
-      milestoneEl.textContent = `${badges.length} of ${nextMilestone.count} badges toward ${nextMilestone.title}`;
+    milestoneEl.classList.toggle('unlocked', badges.length >= DAILY_FIRST_MILESTONE_COUNT);
+    if(badges.length >= DAILY_SECOND_MILESTONE_COUNT){
+      milestoneEl.textContent = `${DAILY_SECOND_MILESTONE_TITLE} unlocked • ${badges.length} badges earned`;
+    } else if(badges.length >= DAILY_FIRST_MILESTONE_COUNT){
+      milestoneEl.textContent = `${badges.length} of ${DAILY_SECOND_MILESTONE_COUNT} badges toward ${DAILY_SECOND_MILESTONE_TITLE}`;
     } else {
-      milestoneEl.textContent = `${DAILY_FIFTH_MILESTONE_TITLE} unlocked • ${badges.length} badges earned`;
+      milestoneEl.textContent = `${badges.length} of ${DAILY_FIRST_MILESTONE_COUNT} badges toward ${DAILY_FIRST_MILESTONE_TITLE}`;
     }
   }
 
   const rankTitleEl = document.getElementById('fateRankTitle');
   const rankProgressEl = document.getElementById('fateRankProgress');
   if(rankTitleEl && rankProgressEl){
-    const unlockedMilestones = DAILY_FATE_MILESTONES.filter(milestone => badges.length >= milestone.count);
-    const currentMilestone = unlockedMilestones.length ? unlockedMilestones[unlockedMilestones.length - 1] : null;
-    const nextMilestone = DAILY_FATE_MILESTONES.find(milestone => badges.length < milestone.count) || null;
-    if(currentMilestone){
-      rankTitleEl.textContent = currentMilestone.title;
-      rankProgressEl.textContent = nextMilestone
-        ? `${badges.length} of ${nextMilestone.count} badges toward ${nextMilestone.title}.`
-        : `${badges.length} Daily Fate badges earned. Your 25-badge title is unlocked on this device.`;
+    if(badges.length >= DAILY_SECOND_MILESTONE_COUNT){
+      rankTitleEl.textContent = DAILY_SECOND_MILESTONE_TITLE;
+      rankProgressEl.textContent = `${badges.length} Daily Fate badges earned. Your 10-badge title is unlocked on this device.`;
+    } else if(badges.length >= DAILY_FIRST_MILESTONE_COUNT){
+      rankTitleEl.textContent = DAILY_FIRST_MILESTONE_TITLE;
+      rankProgressEl.textContent = `${badges.length} of ${DAILY_SECOND_MILESTONE_COUNT} badges toward ${DAILY_SECOND_MILESTONE_TITLE}.`;
     } else {
       rankTitleEl.textContent = 'No Fate Title Yet';
       rankProgressEl.textContent = `${badges.length} of ${DAILY_FIRST_MILESTONE_COUNT} badges toward ${DAILY_FIRST_MILESTONE_TITLE}.`;
