@@ -1612,6 +1612,12 @@ const DAILY_FIRST_MILESTONE_COUNT = 5;
 const DAILY_FIRST_MILESTONE_TITLE = 'Keeper of Five Fates';
 const DAILY_SECOND_MILESTONE_COUNT = 10;
 const DAILY_SECOND_MILESTONE_TITLE = 'Master of the Daily Fate';
+const DAILY_THIRD_MILESTONE_COUNT = 15;
+const DAILY_THIRD_MILESTONE_TITLE = 'Warden of Fate';
+const DAILY_FOURTH_MILESTONE_COUNT = 20;
+const DAILY_FOURTH_MILESTONE_TITLE = 'Champion of Fate';
+const DAILY_FIFTH_MILESTONE_COUNT = 25;
+const DAILY_FIFTH_MILESTONE_TITLE = 'Legend of the Seven Fates';
 
 function getDailyTarget(dateSeed=getDailySeed()){
   let hash = 2166136261;
@@ -1662,6 +1668,12 @@ function saveDailyFateBadge(finalScore){
     milestoneUnlocked = {count:DAILY_FIRST_MILESTONE_COUNT, title:DAILY_FIRST_MILESTONE_TITLE};
   } else if(badges.length === DAILY_SECOND_MILESTONE_COUNT){
     milestoneUnlocked = {count:DAILY_SECOND_MILESTONE_COUNT, title:DAILY_SECOND_MILESTONE_TITLE};
+  } else if(badges.length === DAILY_THIRD_MILESTONE_COUNT){
+    milestoneUnlocked = {count:DAILY_THIRD_MILESTONE_COUNT, title:DAILY_THIRD_MILESTONE_TITLE};
+  } else if(badges.length === DAILY_FOURTH_MILESTONE_COUNT){
+    milestoneUnlocked = {count:DAILY_FOURTH_MILESTONE_COUNT, title:DAILY_FOURTH_MILESTONE_TITLE};
+  } else if(badges.length === DAILY_FIFTH_MILESTONE_COUNT){
+    milestoneUnlocked = {count:DAILY_FIFTH_MILESTONE_COUNT, title:DAILY_FIFTH_MILESTONE_TITLE};
   }
   trackSevenFall('daily_fate_conquered', {target_score:target, final_score:score, badge_count:badges.length});
   if(milestoneUnlocked){
@@ -1691,8 +1703,14 @@ function updateDailyTargetDisplay(){
   }
   if(milestoneEl){
     milestoneEl.classList.toggle('unlocked', badges.length >= DAILY_FIRST_MILESTONE_COUNT);
-    if(badges.length >= DAILY_SECOND_MILESTONE_COUNT){
-      milestoneEl.textContent = `${DAILY_SECOND_MILESTONE_TITLE} unlocked • ${badges.length} badges earned`;
+    if(badges.length >= DAILY_FIFTH_MILESTONE_COUNT){
+      milestoneEl.textContent = `${DAILY_FIFTH_MILESTONE_TITLE} unlocked • ${badges.length} badges earned`;
+    } else if(badges.length >= DAILY_FOURTH_MILESTONE_COUNT){
+      milestoneEl.textContent = `${badges.length} of ${DAILY_FIFTH_MILESTONE_COUNT} badges toward ${DAILY_FIFTH_MILESTONE_TITLE}`;
+    } else if(badges.length >= DAILY_THIRD_MILESTONE_COUNT){
+      milestoneEl.textContent = `${badges.length} of ${DAILY_FOURTH_MILESTONE_COUNT} badges toward ${DAILY_FOURTH_MILESTONE_TITLE}`;
+    } else if(badges.length >= DAILY_SECOND_MILESTONE_COUNT){
+      milestoneEl.textContent = `${badges.length} of ${DAILY_THIRD_MILESTONE_COUNT} badges toward ${DAILY_THIRD_MILESTONE_TITLE}`;
     } else if(badges.length >= DAILY_FIRST_MILESTONE_COUNT){
       milestoneEl.textContent = `${badges.length} of ${DAILY_SECOND_MILESTONE_COUNT} badges toward ${DAILY_SECOND_MILESTONE_TITLE}`;
     } else {
@@ -1703,9 +1721,18 @@ function updateDailyTargetDisplay(){
   const rankTitleEl = document.getElementById('fateRankTitle');
   const rankProgressEl = document.getElementById('fateRankProgress');
   if(rankTitleEl && rankProgressEl){
-    if(badges.length >= DAILY_SECOND_MILESTONE_COUNT){
+    if(badges.length >= DAILY_FIFTH_MILESTONE_COUNT){
+      rankTitleEl.textContent = DAILY_FIFTH_MILESTONE_TITLE;
+      rankProgressEl.textContent = `${badges.length} Daily Fate badges earned. Your 25-badge title is unlocked on this device.`;
+    } else if(badges.length >= DAILY_FOURTH_MILESTONE_COUNT){
+      rankTitleEl.textContent = DAILY_FOURTH_MILESTONE_TITLE;
+      rankProgressEl.textContent = `${badges.length} of ${DAILY_FIFTH_MILESTONE_COUNT} badges toward ${DAILY_FIFTH_MILESTONE_TITLE}.`;
+    } else if(badges.length >= DAILY_THIRD_MILESTONE_COUNT){
+      rankTitleEl.textContent = DAILY_THIRD_MILESTONE_TITLE;
+      rankProgressEl.textContent = `${badges.length} of ${DAILY_FOURTH_MILESTONE_COUNT} badges toward ${DAILY_FOURTH_MILESTONE_TITLE}.`;
+    } else if(badges.length >= DAILY_SECOND_MILESTONE_COUNT){
       rankTitleEl.textContent = DAILY_SECOND_MILESTONE_TITLE;
-      rankProgressEl.textContent = `${badges.length} Daily Fate badges earned. Your 10-badge title is unlocked on this device.`;
+      rankProgressEl.textContent = `${badges.length} of ${DAILY_THIRD_MILESTONE_COUNT} badges toward ${DAILY_THIRD_MILESTONE_TITLE}.`;
     } else if(badges.length >= DAILY_FIRST_MILESTONE_COUNT){
       rankTitleEl.textContent = DAILY_FIRST_MILESTONE_TITLE;
       rankProgressEl.textContent = `${badges.length} of ${DAILY_SECOND_MILESTONE_COUNT} badges toward ${DAILY_SECOND_MILESTONE_TITLE}.`;
