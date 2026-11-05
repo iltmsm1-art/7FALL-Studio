@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>7FALL™ v2.9 — Live Scoring Preview</title>
+<title>7FALL™ v2.10 — Mobile Layout &amp; Live Scoring Preview</title>
 <!-- 7FALL Analytics: replace G-71VGQ7H6G4 with your Google Analytics 4 Measurement ID before publishing. -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-71VGQ7H6G4"></script>
 <script>
@@ -1145,6 +1145,25 @@ img,svg,video,canvas{max-width:100%}
 @media (prefers-reduced-motion:reduce){
   .tile,.fate-title,.fate-flavor,.personal-best{animation:none!important}
 }
+
+/* Mobile play-first layout. All rules and game scripts remain unchanged. */
+@media (max-width:700px){
+  .sheet{display:flex;flex-direction:column}
+  .sheet>header{display:contents}
+  .sheet>header>.brand-area{order:-2;grid-template-columns:minmax(0,1fr);margin-bottom:8px}
+  .sheet>.main{order:-1}
+  .sheet>header>.components{order:0;margin-top:12px}
+  .sheet>.footer{order:1}
+  #playArea{display:flex;flex-direction:column}
+  #playArea>.play-heading-row{order:-4}
+  #dailyTargetCard{order:-3;width:100%;margin:4px 0 8px}
+  #playArea>.controls-grouped,
+  #playArea .gameplay-controls{display:contents}
+  #drawBtn{order:-2;display:block;width:100%;min-height:48px;margin:0 0 12px;font-size:16px}
+  #playArea .setup-controls{margin:12px 0 8px}
+  #playArea .utility-controls{margin-top:10px}
+  #playArea .gameplay-controls>button:not(#drawBtn){min-height:44px;margin-bottom:7px}
+}
 </style>
 
 <link rel="manifest" href="manifest.webmanifest?v=2.1">
@@ -1260,7 +1279,7 @@ img,svg,video,canvas{max-width:100%}
             <button class="secondary" id="soundBtn" type="button">Sound: On</button>
           </div>
         </div>
-        <div class="version-badge">7FALL™ · v2.9 Live Scoring Preview</div>
+        <div class="version-badge">7FALL™ · v2.10 Mobile Layout · Live Scoring Preview</div>
       </section>
 
       <section class="panel">
